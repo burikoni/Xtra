@@ -34,7 +34,8 @@ object ChatUtils {
                 userName = prefixes["display-name"]?.replace("\\s", " "),
                 systemMsg = systemMsg ?: messageInfo,
                 timestamp = prefixes["tmi-sent-ts"]?.toLong(),
-                fullMsg = message
+                fullMsg = message,
+                sourceRoomId = prefixes["source-room-id"]
             )
         } else {
             val userMessage: String
@@ -93,7 +94,8 @@ object ChatUtils {
                     )
                 },
                 timestamp = prefixes["tmi-sent-ts"]?.toLong(),
-                fullMsg = message
+                fullMsg = message,
+                sourceRoomId = prefixes["source-room-id"]
             )
         }
     }
@@ -110,7 +112,8 @@ object ChatUtils {
                 userLogin = login,
                 message = msg,
                 timestamp = prefixes["tmi-sent-ts"]?.toLong(),
-                fullMsg = message
+                fullMsg = message,
+                sourceRoomId = prefixes["source-room-id"]
             ), prefixes["target-msg-id"]
         )
     }
@@ -149,7 +152,8 @@ object ChatUtils {
         return Pair(
             ChatMessage(
                 systemMsg = TwitchApiHelper.getNoticeString(context, msgId, text),
-                fullMsg = message
+                fullMsg = message,
+                sourceRoomId = prefixes["source-room-id"]
             ), msgId == "unraid_success"
         )
     }

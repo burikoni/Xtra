@@ -30,7 +30,8 @@ object RecentMessageUtils {
                 userName = prefixes["display-name"]?.replace("\\s", " "),
                 systemMsg = systemMsg ?: messageInfo,
                 timestamp = prefixes["tmi-sent-ts"]?.toLong(),
-                fullMsg = message
+                fullMsg = message,
+                sourceRoomId = prefixes["source-room-id"]
             )
         } else {
             val userMessage: String
@@ -89,7 +90,8 @@ object RecentMessageUtils {
                     )
                 },
                 timestamp = prefixes["tmi-sent-ts"]?.toLong(),
-                fullMsg = message
+                fullMsg = message,
+                sourceRoomId = prefixes["source-room-id"]
             )
         }
     }
@@ -107,7 +109,8 @@ object RecentMessageUtils {
                 userLogin = login,
                 message = msg,
                 timestamp = prefixes["tmi-sent-ts"]?.toLong(),
-                fullMsg = message
+                fullMsg = message,
+                sourceRoomId = prefixes["source-room-id"]
             ), prefixes["target-msg-id"]
         )
     }
@@ -148,7 +151,8 @@ object RecentMessageUtils {
         val text = messageInfo.substring(if (msgIndex != -1) msgIndex + 1 else index2 + 1)
         return ChatMessage(
             systemMsg = TwitchApiHelper.getNoticeString(context, msgId, text),
-            fullMsg = message
+            fullMsg = message,
+            sourceRoomId = prefixes["source-room-id"]
         )
     }
 

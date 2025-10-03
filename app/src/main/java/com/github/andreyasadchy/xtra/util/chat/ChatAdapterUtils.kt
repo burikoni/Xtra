@@ -96,6 +96,7 @@ object ChatAdapterUtils {
                         builderIndex += timestamp.length + 1
                     }
                 }
+                chatMessage.sourceRoomId?.let { }
                 if (chatMessage.systemMsg != null) {
                     builder.append(chatMessage.systemMsg)
                     builder.setSpan(ForegroundColorSpan(getSavedColor("#999999", savedColors, useReadableColors, isLightTheme)), builderIndex, builderIndex + chatMessage.systemMsg.length, SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -198,6 +199,7 @@ object ChatAdapterUtils {
                         builderIndex += timestamp.length + 1
                     }
                 }
+                chatMessage.sourceRoomId?.let { }
                 chatMessage.badges?.forEach { chatBadge ->
                     val badge = channelBadges?.find { it.setId == chatBadge.setId && it.version == chatBadge.version } ?: globalBadges?.find { it.setId == chatBadge.setId && it.version == chatBadge.version }
                     if (badge != null) {
