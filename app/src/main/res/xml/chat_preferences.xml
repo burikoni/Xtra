@@ -229,6 +229,13 @@
 
     <SwitchPreferenceCompat
         android:defaultValue="true"
+        android:key="chat_show_shared_stream_badge"
+        android:title="@string/show_shared_stream_badge"
+        app:iconSpaceReserved="false"
+        app:singleLineTitle="false" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
         android:key="chat_show_paints"
         android:title="@string/show_name_paints"
         app:iconSpaceReserved="false"

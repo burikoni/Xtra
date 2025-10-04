@@ -11,6 +11,7 @@ class Image(
     val isEmote: Boolean = false,
     val thirdParty: Boolean = false,
     var overlayEmote: Image? = null,
+    val showRoundedCorners: Boolean = false,
     var start: Int,
     var end: Int,
 )

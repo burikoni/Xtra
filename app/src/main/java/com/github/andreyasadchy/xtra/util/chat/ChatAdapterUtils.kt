@@ -33,11 +33,13 @@ import com.github.andreyasadchy.xtra.model.chat.CheerEmote
 import com.github.andreyasadchy.xtra.model.chat.Emote
 import com.github.andreyasadchy.xtra.model.chat.Image
 import com.github.andreyasadchy.xtra.model.chat.NamePaint
+import com.github.andreyasadchy.xtra.model.chat.RoomBadge
 import com.github.andreyasadchy.xtra.model.chat.StvBadge
 import com.github.andreyasadchy.xtra.model.chat.TwitchBadge
 import com.github.andreyasadchy.xtra.model.chat.TwitchEmote
 import com.github.andreyasadchy.xtra.ui.chat.ImageClickedDialog
 import com.github.andreyasadchy.xtra.ui.view.CenteredImageSpan
+import com.github.andreyasadchy.xtra.ui.view.CenteredRoundedImageSpan
 import com.github.andreyasadchy.xtra.ui.view.NamePaintImageSpan
 import com.github.andreyasadchy.xtra.ui.view.NamePaintSpan
 import com.github.andreyasadchy.xtra.util.TwitchApiHelper
@@ -54,7 +56,7 @@ object ChatAdapterUtils {
     private const val PI_DEGREES = 180f
     private const val TWO_PI_DEGREES = 360f
 
-    fun prepareChatMessage(chatMessage: ChatMessage, itemView: View, enableTimestamps: Boolean, timestampFormat: String?, firstMsgVisibility: Int, firstChatMsg: String, redeemedChatMsg: String, redeemedNoMsg: String, rewardChatMsg: String, replyMessage: String, imageClick: ((String?, String?, String?, String?, Boolean?, Boolean?, String?) -> Unit)?, useRandomColors: Boolean, random: Random, useReadableColors: Boolean, isLightTheme: Boolean, nameDisplay: String?, useBoldNames: Boolean, showNamePaints: Boolean, namePaints: List<NamePaint>?, paintUsers: Map<String, String>?, showStvBadges: Boolean, stvBadges: List<StvBadge>?, stvBadgeUsers: Map<String, String>?, showPersonalEmotes: Boolean, personalEmoteSets: Map<String, List<Emote>>?, personalEmoteSetUsers: Map<String, String>?, enableOverlayEmotes: Boolean, showSystemMessageEmotes: Boolean, loggedInUser: String?, chatUrl: String?, getEmoteBytes: ((String, Pair<Long, Int>) -> ByteArray?)?, userColors: HashMap<String, Int>, savedColors: HashMap<String, Int>, translateAllMessages: Boolean, translateMessage: (ChatMessage, String?) -> Unit, showLanguageDownloadDialog: (ChatMessage, String) -> Unit, hideErrors: Boolean, localTwitchEmotes: List<TwitchEmote>?, globalStvEmotes: List<Emote>?, channelStvEmotes: List<Emote>?, globalBttvEmotes: List<Emote>?, channelBttvEmotes: List<Emote>?, globalFfzEmotes: List<Emote>?, channelFfzEmotes: List<Emote>?, globalBadges: List<TwitchBadge>?, channelBadges: List<TwitchBadge>?, cheerEmotes: List<CheerEmote>?, savedLocalTwitchEmotes: MutableMap<String, ByteArray>, savedLocalBadges: MutableMap<String, ByteArray>, savedLocalCheerEmotes: MutableMap<String, ByteArray>, savedLocalEmotes: MutableMap<String, ByteArray>): MessageResult {
+    fun prepareChatMessage(chatMessage: ChatMessage, itemView: View, enableTimestamps: Boolean, timestampFormat: String?, firstMsgVisibility: Int, firstChatMsg: String, redeemedChatMsg: String, redeemedNoMsg: String, rewardChatMsg: String, replyMessage: String, imageClick: ((String?, String?, String?, String?, Boolean?, Boolean?, String?, String?) -> Unit)?, useRandomColors: Boolean, random: Random, useReadableColors: Boolean, isLightTheme: Boolean, nameDisplay: String?, useBoldNames: Boolean, showNamePaints: Boolean, namePaints: List<NamePaint>?, paintUsers: Map<String, String>?, showStvBadges: Boolean, stvBadges: List<StvBadge>?, stvBadgeUsers: Map<String, String>?, showPersonalEmotes: Boolean, personalEmoteSets: Map<String, List<Emote>>?, personalEmoteSetUsers: Map<String, String>?, enableOverlayEmotes: Boolean, showSystemMessageEmotes: Boolean, loggedInUser: String?, chatUrl: String?, getEmoteBytes: ((String, Pair<Long, Int>) -> ByteArray?)?, userColors: HashMap<String, Int>, savedColors: HashMap<String, Int>, translateAllMessages: Boolean, translateMessage: (ChatMessage, String?) -> Unit, showLanguageDownloadDialog: (ChatMessage, String) -> Unit, hideErrors: Boolean, localTwitchEmotes: List<TwitchEmote>?, globalStvEmotes: List<Emote>?, channelStvEmotes: List<Emote>?, globalBttvEmotes: List<Emote>?, channelBttvEmotes: List<Emote>?, globalFfzEmotes: List<Emote>?, channelFfzEmotes: List<Emote>?, globalBadges: List<TwitchBadge>?, channelBadges: List<TwitchBadge>?, cheerEmotes: List<CheerEmote>?, savedLocalTwitchEmotes: MutableMap<String, ByteArray>, savedLocalBadges: MutableMap<String, ByteArray>, savedLocalCheerEmotes: MutableMap<String, ByteArray>, savedLocalEmotes: MutableMap<String, ByteArray>, roomBadges: List<RoomBadge>?, showSharedStreamBadge: Boolean): MessageResult {
         val builder = SpannableStringBuilder()
         val images = ArrayList<Image>()
         var imagePaint: NamePaint? = null
@@ -96,7 +98,47 @@ object ChatAdapterUtils {
                         builderIndex += timestamp.length + 1
                     }
                 }
-                chatMessage.sourceRoomId?.let { }
+                if (chatMessage.sourceRoomId != null && showSharedStreamBadge) {
+                    val roomBadge = roomBadges?.find { it.id == chatMessage.sourceRoomId }
+                    if (roomBadge != null) {
+                        builder.append(". ")
+                        builder.setSpan(
+                            ForegroundColorSpan(Color.TRANSPARENT),
+                            builderIndex,
+                            builderIndex + 1,
+                            SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        if (imageClick != null) {
+                            builder.setSpan(object : ClickableSpan() {
+                                override fun onClick(widget: View) {
+                                    imageClick(
+                                        roomBadge.url4x,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        roomBadge.channelName
+                                    )
+                                }
+
+                                override fun updateDrawState(ds: TextPaint) {}
+                            }, builderIndex, builderIndex + 1, SPAN_EXCLUSIVE_EXCLUSIVE)
+                        }
+                        images.add(
+                            Image(
+                                url1x = roomBadge.url1x,
+                                url2x = roomBadge.url2x,
+                                url3x = roomBadge.url3x,
+                                url4x = roomBadge.url4x,
+                                showRoundedCorners = true,
+                                start = builderIndex++,
+                                end = builderIndex++
+                            )
+                        )
+                    }
+                }
                 if (chatMessage.systemMsg != null) {
                     builder.append(chatMessage.systemMsg)
                     builder.setSpan(ForegroundColorSpan(getSavedColor("#999999", savedColors, useReadableColors, isLightTheme)), builderIndex, builderIndex + chatMessage.systemMsg.length, SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -199,7 +241,47 @@ object ChatAdapterUtils {
                         builderIndex += timestamp.length + 1
                     }
                 }
-                chatMessage.sourceRoomId?.let { }
+                if (chatMessage.sourceRoomId != null && showSharedStreamBadge) {
+                    val roomBadge = roomBadges?.find { it.id == chatMessage.sourceRoomId }
+                    if (roomBadge != null) {
+                        builder.append(". ")
+                        builder.setSpan(
+                            ForegroundColorSpan(Color.TRANSPARENT),
+                            builderIndex,
+                            builderIndex + 1,
+                            SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                        if (imageClick != null) {
+                            builder.setSpan(object : ClickableSpan() {
+                                override fun onClick(widget: View) {
+                                    imageClick(
+                                        roomBadge.url4x,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        roomBadge.channelName
+                                    )
+                                }
+
+                                override fun updateDrawState(ds: TextPaint) {}
+                            }, builderIndex, builderIndex + 1, SPAN_EXCLUSIVE_EXCLUSIVE)
+                        }
+                        images.add(
+                            Image(
+                                url1x = roomBadge.url1x,
+                                url2x = roomBadge.url2x,
+                                url3x = roomBadge.url3x,
+                                url4x = roomBadge.url4x,
+                                showRoundedCorners = true,
+                                start = builderIndex++,
+                                end = builderIndex++
+                            )
+                        )
+                    }
+                }
                 chatMessage.badges?.forEach { chatBadge ->
                     val badge = channelBadges?.find { it.setId == chatBadge.setId && it.version == chatBadge.version } ?: globalBadges?.find { it.setId == chatBadge.setId && it.version == chatBadge.version }
                     if (badge != null) {
@@ -208,7 +290,7 @@ object ChatAdapterUtils {
                         if (imageClick != null) {
                             builder.setSpan(object : ClickableSpan() {
                                 override fun onClick(widget: View) {
-                                    imageClick(badge.url4x ?: badge.url3x ?: badge.url2x ?: badge.url1x, badge.title, null, null, null, null, null)
+                                    imageClick(badge.url4x ?: badge.url3x ?: badge.url2x ?: badge.url1x, badge.title, null, null, null, null, null, null)
                                 }
 
                                 override fun updateDrawState(ds: TextPaint) {}
@@ -232,7 +314,7 @@ object ChatAdapterUtils {
                         if (imageClick != null) {
                             builder.setSpan(object : ClickableSpan() {
                                 override fun onClick(widget: View) {
-                                    imageClick(badge.url4x ?: badge.url3x ?: badge.url2x ?: badge.url1x, badge.name, null, badge.format, true, true, null)
+                                    imageClick(badge.url4x ?: badge.url3x ?: badge.url2x ?: badge.url1x, badge.name, null, badge.format, true, true, null, null)
                                 }
 
                                 override fun updateDrawState(ds: TextPaint) {}
@@ -412,7 +494,7 @@ object ChatAdapterUtils {
         return ColorUtils.HSLToColor(colorArray)
     }
 
-    private fun prepareEmotes(chatMessage: ChatMessage, message: String, builder: SpannableStringBuilder, startIndex: Int, images: ArrayList<Image>, imageClick: ((String?, String?, String?, String?, Boolean?, Boolean?, String?) -> Unit)?, useReadableColors: Boolean, isLightTheme: Boolean, enableOverlayEmotes: Boolean, useBoldNames: Boolean, loggedInUser: String?, chatUrl: String?, getEmoteBytes: ((String, Pair<Long, Int>) -> ByteArray?)?, savedColors: HashMap<String, Int>, localTwitchEmotes: List<TwitchEmote>?, showPersonalEmotes: Boolean, personalEmoteSets: Map<String, List<Emote>>?, personalEmoteSetUsers: Map<String, String>?, globalStvEmotes: List<Emote>?, channelStvEmotes: List<Emote>?, globalBttvEmotes: List<Emote>?, channelBttvEmotes: List<Emote>?, globalFfzEmotes: List<Emote>?, channelFfzEmotes: List<Emote>?, cheerEmotes: List<CheerEmote>?, savedLocalTwitchEmotes: MutableMap<String, ByteArray>, savedLocalCheerEmotes: MutableMap<String, ByteArray>, savedLocalEmotes: MutableMap<String, ByteArray>): Boolean {
+    private fun prepareEmotes(chatMessage: ChatMessage, message: String, builder: SpannableStringBuilder, startIndex: Int, images: ArrayList<Image>, imageClick: ((String?, String?, String?, String?, Boolean?, Boolean?, String?, String?) -> Unit)?, useReadableColors: Boolean, isLightTheme: Boolean, enableOverlayEmotes: Boolean, useBoldNames: Boolean, loggedInUser: String?, chatUrl: String?, getEmoteBytes: ((String, Pair<Long, Int>) -> ByteArray?)?, savedColors: HashMap<String, Int>, localTwitchEmotes: List<TwitchEmote>?, showPersonalEmotes: Boolean, personalEmoteSets: Map<String, List<Emote>>?, personalEmoteSetUsers: Map<String, String>?, globalStvEmotes: List<Emote>?, channelStvEmotes: List<Emote>?, globalBttvEmotes: List<Emote>?, channelBttvEmotes: List<Emote>?, globalFfzEmotes: List<Emote>?, channelFfzEmotes: List<Emote>?, cheerEmotes: List<CheerEmote>?, savedLocalTwitchEmotes: MutableMap<String, ByteArray>, savedLocalCheerEmotes: MutableMap<String, ByteArray>, savedLocalEmotes: MutableMap<String, ByteArray>): Boolean {
         var wasMentioned = false
         try {
             var builderIndex = startIndex
@@ -454,7 +536,7 @@ object ChatAdapterUtils {
                             if (imageClick != null) {
                                 builder.setSpan(object : ClickableSpan() {
                                     override fun onClick(widget: View) {
-                                        imageClick(emote.url4x ?: emote.url3x ?: emote.url2x ?: emote.url1x, value, null, emote.format, emote.isAnimated, null, null)
+                                        imageClick(emote.url4x ?: emote.url3x ?: emote.url2x ?: emote.url1x, value, null, emote.format, emote.isAnimated, null, null, null)
                                     }
 
                                     override fun updateDrawState(ds: TextPaint) {}
@@ -530,7 +612,7 @@ object ChatAdapterUtils {
                         if (imageClick != null) {
                             builder.setSpan(object : ClickableSpan() {
                                 override fun onClick(widget: View) {
-                                    imageClick(emote.url4x ?: emote.url3x ?: emote.url2x ?: emote.url1x, emote.name, source, emote.format, emote.isAnimated, emote.thirdParty, null)
+                                    imageClick(emote.url4x ?: emote.url3x ?: emote.url2x ?: emote.url1x, emote.name, source, emote.format, emote.isAnimated, emote.thirdParty, null, null)
                                 }
 
                                 override fun updateDrawState(ds: TextPaint) {}
@@ -593,7 +675,7 @@ object ChatAdapterUtils {
                     if (imageClick != null) {
                         builder.setSpan(object : ClickableSpan() {
                             override fun onClick(widget: View) {
-                                imageClick(emote.url4x ?: emote.url3x ?: emote.url2x ?: emote.url1x, value, null, emote.format, emote.isAnimated, null, emote.id)
+                                imageClick(emote.url4x ?: emote.url3x ?: emote.url2x ?: emote.url1x, value, null, emote.format, emote.isAnimated, null, emote.id, null)
                             }
 
                             override fun updateDrawState(ds: TextPaint) {}
@@ -836,7 +918,21 @@ object ChatAdapterUtils {
                     val drawables = arrayOf(result)
                     nextOverlayEmote(imageLibrary, fragment, drawables, image.overlayEmote!!, image, itemView, bind, builder, translated, emoteSize, emoteQuality, animateGifs, enableOverlayEmotes, chatMessage, savedColors, useReadableColors, isLightTheme, showLanguageDownloadDialog, hideErrors)
                 } else {
-                    builder.setSpan(CenteredImageSpan(result), image.start, image.end, SPAN_EXCLUSIVE_EXCLUSIVE)
+                    if (image.showRoundedCorners) {
+                        builder.setSpan(
+                            CenteredRoundedImageSpan(result),
+                            image.start,
+                            image.end,
+                            SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    } else {
+                        builder.setSpan(
+                            CenteredImageSpan(result),
+                            image.start,
+                            image.end,
+                            SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
                     if (!translated && chatMessage.translatedMessage != null) {
                         addTranslation(chatMessage, builder, builder.length, savedColors, useReadableColors, isLightTheme, showLanguageDownloadDialog, hideErrors)
                     }

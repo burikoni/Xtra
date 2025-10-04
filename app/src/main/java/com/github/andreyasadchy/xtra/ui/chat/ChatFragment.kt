@@ -181,6 +181,7 @@ class ChatFragment : BaseNetworkFragment(), MessageClickedDialog.OnButtonClickLi
                         translateMessage = this@ChatFragment::onTranslateMessageClicked,
                         showLanguageDownloadDialog = this@ChatFragment::showLanguageDownloadDialog,
                         channelId = channelId,
+                        showSharedStreamBadge = requireContext().prefs().getBoolean(C.CHAT_SHOW_SHARED_STREAM_BADGE, true),
                     )
                     recyclerView.let {
                         it.adapter = adapter
@@ -223,10 +224,10 @@ class ChatFragment : BaseNetworkFragment(), MessageClickedDialog.OnButtonClickLi
                         editText.clearFocus()
                         ReplyClickedDialog.newInstance(enableMessaging).show(this@ChatFragment.childFragmentManager, "replyDialog")
                     }
-                    adapter.imageClickListener = { url, name, source, format, isAnimated, thirdParty, emoteId ->
+                    adapter.imageClickListener = { url, name, source, format, isAnimated, thirdParty, emoteId, roomId ->
                         editText.hideKeyboard()
                         editText.clearFocus()
-                        ImageClickedDialog.newInstance(url, name, source, format, isAnimated, thirdParty, emoteId).show(this@ChatFragment.childFragmentManager, "imageDialog")
+                        ImageClickedDialog.newInstance(url, name, source, format, isAnimated, thirdParty, emoteId, roomId).show(this@ChatFragment.childFragmentManager, "imageDialog")
                     }
                     if (enableMessaging) {
                         adapter.loggedInUser = accountLogin
@@ -493,6 +494,15 @@ class ChatFragment : BaseNetworkFragment(), MessageClickedDialog.OnButtonClickLi
                                 adapter.globalBadges = it
                                 messageDialog?.adapter?.globalBadges = it
                                 replyDialog?.adapter?.globalBadges = it
+                            }
+                        }
+                    }
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            viewModel.roomBadges.collectLatest {
+                                adapter.roomBadges = it
+                                messageDialog?.adapter?.roomBadges = it
+                                replyDialog?.adapter?.roomBadges = it
                             }
                         }
                     }

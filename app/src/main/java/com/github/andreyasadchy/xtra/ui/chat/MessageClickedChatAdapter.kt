@@ -24,6 +24,7 @@ import com.github.andreyasadchy.xtra.model.chat.ChatMessage
 import com.github.andreyasadchy.xtra.model.chat.CheerEmote
 import com.github.andreyasadchy.xtra.model.chat.Emote
 import com.github.andreyasadchy.xtra.model.chat.NamePaint
+import com.github.andreyasadchy.xtra.model.chat.RoomBadge
 import com.github.andreyasadchy.xtra.model.chat.StvBadge
 import com.github.andreyasadchy.xtra.model.chat.TwitchBadge
 import com.github.andreyasadchy.xtra.model.chat.TwitchEmote
@@ -41,7 +42,7 @@ class MessageClickedChatAdapter(
     private val rewardChatMsg: String,
     private val replyMessage: String,
     private val replyClick: (ChatMessage) -> Unit,
-    private val imageClick: (String?, String?, String?, String?, Boolean?, Boolean?, String?) -> Unit,
+    private val imageClick: (String?, String?, String?, String?, Boolean?, Boolean?, String?, String?) -> Unit,
     private val useRandomColors: Boolean,
     private val useReadableColors: Boolean,
     private val isLightTheme: Boolean,
@@ -86,6 +87,8 @@ class MessageClickedChatAdapter(
     var channelBadges: List<TwitchBadge>?,
     var cheerEmotes: List<CheerEmote>?,
     var selectedMessage: ChatMessage?,
+    var roomBadges: List<RoomBadge>?,
+    val showSharedStreamBadge: Boolean
 ) : RecyclerView.Adapter<MessageClickedChatAdapter.ViewHolder>() {
 
     val userId = selectedMessage?.userId
@@ -122,12 +125,12 @@ class MessageClickedChatAdapter(
         val chatMessage = messages?.get(position) ?: return
         val result = ChatAdapterUtils.prepareChatMessage(
             chatMessage, holder.textView, enableTimestamps, timestampFormat, firstMsgVisibility, firstChatMsg, redeemedChatMsg, redeemedNoMsg,
-            rewardChatMsg, replyMessage, { url, name, source, format, isAnimated, thirdParty, emoteId -> imageClick(url, name, source, format, isAnimated, thirdParty, emoteId) },
+            rewardChatMsg, replyMessage, { url, name, source, format, isAnimated, thirdParty, emoteId, roomId -> imageClick(url, name, source, format, isAnimated, thirdParty, emoteId, roomId) },
             useRandomColors, random, useReadableColors, isLightTheme, nameDisplay, useBoldNames, showNamePaints, namePaints, paintUsers,
             showStvBadges, stvBadges, stvBadgeUsers, showPersonalEmotes, personalEmoteSets, personalEmoteSetUsers, showSystemMessageEmotes,
             enableOverlayEmotes, loggedInUser, chatUrl, getEmoteBytes, userColors, savedColors, translateAllMessages, translateMessage,
             showLanguageDownloadDialog, false, localTwitchEmotes, globalStvEmotes, channelStvEmotes, globalBttvEmotes, channelBttvEmotes, globalFfzEmotes,
-            channelFfzEmotes, globalBadges, channelBadges, cheerEmotes, savedLocalTwitchEmotes, savedLocalBadges, savedLocalCheerEmotes, savedLocalEmotes
+            channelFfzEmotes, globalBadges, channelBadges, cheerEmotes, savedLocalTwitchEmotes, savedLocalBadges, savedLocalCheerEmotes, savedLocalEmotes, roomBadges, showSharedStreamBadge
         )
         if (chatMessage == selectedMessage) {
             holder.textView.setBackgroundResource(R.color.chatMessageSelected)

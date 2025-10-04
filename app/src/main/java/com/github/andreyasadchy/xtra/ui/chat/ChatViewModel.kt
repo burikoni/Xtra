@@ -22,6 +22,7 @@ import com.github.andreyasadchy.xtra.model.chat.Poll
 import com.github.andreyasadchy.xtra.model.chat.Prediction
 import com.github.andreyasadchy.xtra.model.chat.Raid
 import com.github.andreyasadchy.xtra.model.chat.RecentEmote
+import com.github.andreyasadchy.xtra.model.chat.RoomBadge
 import com.github.andreyasadchy.xtra.model.chat.RoomState
 import com.github.andreyasadchy.xtra.model.chat.StvBadge
 import com.github.andreyasadchy.xtra.model.chat.TwitchBadge
@@ -138,6 +139,8 @@ class ChatViewModel @Inject constructor(
     val channelBadges: StateFlow<List<TwitchBadge>?> = _channelBadges
     private val _cheerEmotes = MutableStateFlow<List<CheerEmote>?>(null)
     val cheerEmotes: StateFlow<List<CheerEmote>?> = _cheerEmotes
+    private val _roomBadges = MutableStateFlow<List<RoomBadge>?>(null)
+    val roomBadges: StateFlow<List<RoomBadge>?> = _roomBadges
 
     val roomState = MutableStateFlow<RoomState?>(null)
     val raid = MutableStateFlow<Raid?>(null)
@@ -248,6 +251,41 @@ class ChatViewModel @Inject constructor(
         val animateGifs = applicationContext.prefs().getBoolean(C.ANIMATED_EMOTES, true)
         val useWebp = applicationContext.prefs().getBoolean(C.CHAT_USE_WEBP, true)
         val enableIntegrity = applicationContext.prefs().getBoolean(C.ENABLE_INTEGRITY, false)
+        val showSharedStreamBadge = applicationContext.prefs().getBoolean(C.CHAT_SHOW_SHARED_STREAM_BADGE, true)
+        if (showSharedStreamBadge) {
+            savedRoomBadges.also { saved ->
+                if (!saved.isNullOrEmpty()) {
+                    _roomBadges.value = saved
+                    if (!reloadMessages.value) {
+                        reloadMessages.value = true
+                    }
+                } else {
+                    viewModelScope.launch {
+                        try {
+                            playerRepository.loadRoomBadges(
+                                networkLibrary,
+                                gqlHeaders,
+                                channelId,
+                                enableIntegrity
+                            ).let { badges ->
+                                if (badges.isNotEmpty()) {
+                                    savedRoomBadges = badges
+                                    _roomBadges.value = badges
+                                    if (!reloadMessages.value) {
+                                        reloadMessages.value = true
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Failed to load room badges", e)
+                            if (e.message == "failed integrity check" && integrity.value == null) {
+                                integrity.value = "refresh"
+                            }
+                        }
+                    }
+                }
+            }
+        }
         savedGlobalBadges.also { saved ->
             if (!saved.isNullOrEmpty()) {
                 _globalBadges.value = saved
@@ -549,6 +587,7 @@ class ChatViewModel @Inject constructor(
         savedGlobalBttvEmotes = null
         savedGlobalFfzEmotes = null
         loadEmotes(channelId, channelLogin)
+        savedRoomBadges = null
     }
 
     fun loadRecentMessages(networkLibrary: String?, channelLogin: String) {
@@ -2706,5 +2745,6 @@ class ChatViewModel @Inject constructor(
         private var savedGlobalStvEmotes: List<Emote>? = null
         private var savedGlobalBttvEmotes: List<Emote>? = null
         private var savedGlobalFfzEmotes: List<Emote>? = null
+        private var savedRoomBadges: List<RoomBadge>? = null
     }
 }

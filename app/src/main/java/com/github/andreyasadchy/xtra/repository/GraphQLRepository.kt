@@ -66,6 +66,7 @@ import com.github.andreyasadchy.xtra.model.gql.game.GameClipsResponse
 import com.github.andreyasadchy.xtra.model.gql.game.GameStreamsResponse
 import com.github.andreyasadchy.xtra.model.gql.game.GameVideosResponse
 import com.github.andreyasadchy.xtra.model.gql.game.GamesResponse
+import com.github.andreyasadchy.xtra.model.gql.guest.GuestListQueryResponse
 import com.github.andreyasadchy.xtra.model.gql.playlist.PlaybackAccessTokenResponse
 import com.github.andreyasadchy.xtra.model.gql.search.SearchChannelsResponse
 import com.github.andreyasadchy.xtra.model.gql.search.SearchGameTagsResponse
@@ -87,6 +88,7 @@ import com.github.andreyasadchy.xtra.util.getByteArrayCronetCallback
 import dagger.Lazy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.add
@@ -1544,5 +1546,21 @@ class GraphQLRepository @Inject constructor(
             }
         }.toString()
         json.decodeFromString<ErrorResponse>(sendPersistedQuery(networkLibrary, headers, body))
+    }
+
+    suspend fun loadRoomBadges(networkLibrary: String?, headers: Map<String, String>, channelId: String? = null): GuestListQueryResponse = withContext(Dispatchers.IO) {
+        val body = buildJsonObject {
+            putJsonObject("extensions") {
+                putJsonObject("persistedQuery") {
+                    put("sha256Hash", "7a2267973bdd74b9ddd5d07ceabd73b5b5d13eae83b54d4436fb5a3fa26c3bc8")
+                    put("version", 1)
+                }
+            }
+            put("operationName", "GuestListQuery")
+            putJsonObject("variables") {
+                put("channelID", channelId)
+            }
+        }.toString()
+        json.decodeFromString<GuestListQueryResponse>(sendPersistedQuery(networkLibrary, headers, body))
     }
 }

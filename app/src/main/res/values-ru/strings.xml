@@ -703,4 +703,6 @@
     <string name="show_more_websocket_info">Show more info about WebSockets</string>
     <string name="websocket_connected">%s: Connected</string>
     <string name="websocket_disconnected">%1$s: Disconnected - %2$s</string>
+    <string name="sent_from_channel">Send from %s\'s channel</string>
+    <string name="show_shared_stream_badge">Show shared stream badge</string>
 </resources>

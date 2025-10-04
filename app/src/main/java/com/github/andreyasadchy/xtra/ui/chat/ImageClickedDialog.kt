@@ -45,6 +45,7 @@ class ImageClickedDialog : BottomSheetDialogFragment(), IntegrityDialog.Callback
         private const val IMAGE_ANIMATED = "image_animated"
         private const val IMAGE_THIRD_PARTY = "image_third_party"
         private const val EMOTE_ID = "emote_id"
+        private const val ROOM_NAME = "room_name"
 
         const val PERSONAL_STV = "personal_stv"
         const val CHANNEL_STV = "channel_stv"
@@ -54,7 +55,7 @@ class ImageClickedDialog : BottomSheetDialogFragment(), IntegrityDialog.Callback
         const val GLOBAL_BTTV = "global_bttv"
         const val GLOBAL_FFZ = "global_ffz"
 
-        fun newInstance(url: String?, name: String?, source: String?, format: String?, isAnimated: Boolean?, thirdParty: Boolean?, emoteId: String?): ImageClickedDialog {
+        fun newInstance(url: String?, name: String?, source: String?, format: String?, isAnimated: Boolean?, thirdParty: Boolean?, emoteId: String?, roomName: String?): ImageClickedDialog {
             return ImageClickedDialog().apply {
                 arguments = bundleOf(
                     IMAGE_URL to url,
@@ -63,7 +64,8 @@ class ImageClickedDialog : BottomSheetDialogFragment(), IntegrityDialog.Callback
                     IMAGE_FORMAT to format,
                     IMAGE_ANIMATED to isAnimated,
                     IMAGE_THIRD_PARTY to thirdParty,
-                    EMOTE_ID to emoteId
+                    EMOTE_ID to emoteId,
+                    ROOM_NAME to roomName
                 )
             }
         }
@@ -197,6 +199,10 @@ class ImageClickedDialog : BottomSheetDialogFragment(), IntegrityDialog.Callback
                         }
                     }
                 }
+            }
+            args.getString(ROOM_NAME)?.let {
+                imageSource.visible()
+                imageSource.text = requireContext().getString(R.string.sent_from_channel, it)
             }
         }
     }

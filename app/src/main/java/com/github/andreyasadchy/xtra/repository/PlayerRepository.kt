@@ -13,6 +13,7 @@ import com.github.andreyasadchy.xtra.model.VideoPosition
 import com.github.andreyasadchy.xtra.model.chat.CheerEmote
 import com.github.andreyasadchy.xtra.model.chat.Emote
 import com.github.andreyasadchy.xtra.model.chat.RecentEmote
+import com.github.andreyasadchy.xtra.model.chat.RoomBadge
 import com.github.andreyasadchy.xtra.model.chat.TwitchBadge
 import com.github.andreyasadchy.xtra.model.chat.TwitchEmote
 import com.github.andreyasadchy.xtra.model.gql.playlist.PlaybackAccessTokenResponse
@@ -1356,5 +1357,27 @@ class PlayerRepository @Inject constructor(
 
     suspend fun deleteVideoPositions() = withContext(Dispatchers.IO) {
         videoPositions.deleteAll()
+    }
+
+    suspend fun loadRoomBadges(
+        networkLibrary: String?,
+        gqlHeaders: Map<String, String>,
+        channelId: String?,
+        enableIntegrity: Boolean
+    ): List<RoomBadge> = withContext(Dispatchers.IO) {
+        val response = graphQLRepository.loadRoomBadges(networkLibrary, gqlHeaders, channelId)
+        if (enableIntegrity) {
+            response.errors?.find { it.message == "failed integrity check" }
+                ?.let { throw Exception(it.message) }
+        }
+        response.data!!.channel.guestStarSessionCall.guests.map {
+            val user = it.user
+            RoomBadge(
+                id = user.id,
+                channelLogin = user.login,
+                channelName = user.displayName,
+                profileImageUrl = user.profileImageURL
+            )
+        }
     }
 }

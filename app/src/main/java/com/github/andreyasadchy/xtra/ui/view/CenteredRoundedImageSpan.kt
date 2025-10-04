@@ -1,0 +1,52 @@
+package com.github.andreyasadchy.xtra.ui.view
+
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Paint.FontMetricsInt
+import android.graphics.Path
+import android.graphics.drawable.Drawable
+import android.text.style.ImageSpan
+import kotlin.apply
+
+class CenteredRoundedImageSpan(drawable: Drawable) : ImageSpan(drawable) {
+    override fun getSize(paint: Paint, text: CharSequence, start: Int, end: Int, fontMetricsInt: FontMetricsInt?): Int {
+        val drawable = drawable
+        val rect = drawable.bounds
+        if (fontMetricsInt != null) {
+            val fmPaint = paint.fontMetricsInt
+            val fontHeight = fmPaint.descent - fmPaint.ascent
+            val drHeight = rect.bottom - rect.top
+            val centerY = fmPaint.ascent + fontHeight / 2
+            fontMetricsInt.ascent = centerY - drHeight / 2
+            fontMetricsInt.top = fontMetricsInt.ascent
+            fontMetricsInt.bottom = centerY + drHeight / 2
+            fontMetricsInt.descent = fontMetricsInt.bottom
+        }
+        return rect.right
+    }
+
+    override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
+        val drawable = drawable
+        canvas.save()
+        val fmPaint = paint.fontMetricsInt
+        val fontHeight = fmPaint.descent - fmPaint.ascent
+        val centerY = y + fmPaint.descent - fontHeight / 2
+        val transY = centerY - (drawable.bounds.bottom - drawable.bounds.top) / 2
+        canvas.translate(x, transY.toFloat())
+        val path = Path().apply {
+            val radius = 20f
+            addRoundRect(
+                0f,
+                0f,
+                drawable.bounds.width().toFloat(),
+                drawable.bounds.height().toFloat(),
+                radius,
+                radius,
+                Path.Direction.CW
+            )
+        }
+        canvas.clipPath(path)
+        drawable.draw(canvas)
+        canvas.restore()
+    }
+}

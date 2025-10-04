@@ -21,6 +21,7 @@ import com.github.andreyasadchy.xtra.model.chat.ChatMessage
 import com.github.andreyasadchy.xtra.model.chat.CheerEmote
 import com.github.andreyasadchy.xtra.model.chat.Emote
 import com.github.andreyasadchy.xtra.model.chat.NamePaint
+import com.github.andreyasadchy.xtra.model.chat.RoomBadge
 import com.github.andreyasadchy.xtra.model.chat.StvBadge
 import com.github.andreyasadchy.xtra.model.chat.TwitchBadge
 import com.github.andreyasadchy.xtra.model.chat.TwitchEmote
@@ -67,6 +68,7 @@ class ChatAdapter(
     private val translateMessage: (ChatMessage, String?) -> Unit,
     private val showLanguageDownloadDialog: (ChatMessage, String) -> Unit,
     private val channelId: String?,
+    private val showSharedStreamBadge: Boolean
 ) : RecyclerView.Adapter<ChatAdapter.ViewHolder>() {
 
     var messages: MutableList<ChatMessage>? = null
@@ -102,10 +104,11 @@ class ChatAdapter(
     private val savedLocalBadges = mutableMapOf<String, ByteArray>()
     private val savedLocalCheerEmotes = mutableMapOf<String, ByteArray>()
     private val savedLocalEmotes = mutableMapOf<String, ByteArray>()
+    var roomBadges: List<RoomBadge>? = null
 
     var messageClickListener: ((String?) -> Unit)? = null
     var replyClickListener: (() -> Unit)? = null
-    var imageClickListener: ((String?, String?, String?, String?, Boolean?, Boolean?, String?) -> Unit)? = null
+    var imageClickListener: ((String?, String?, String?, String?, Boolean?, Boolean?, String?, String?) -> Unit)? = null
     private var selectedMessage: ChatMessage? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -120,7 +123,7 @@ class ChatAdapter(
             namePaints, paintUsers, showStvBadges, stvBadges, stvBadgeUsers, showPersonalEmotes, personalEmoteSets, personalEmoteSetUsers, enableOverlayEmotes,
             showSystemMessageEmotes, loggedInUser, chatUrl, getEmoteBytes, userColors, savedColors, translateAllMessages, translateMessage,
             showLanguageDownloadDialog, true, localTwitchEmotes, globalStvEmotes, channelStvEmotes, globalBttvEmotes, channelBttvEmotes, globalFfzEmotes,
-            channelFfzEmotes, globalBadges, channelBadges, cheerEmotes, savedLocalTwitchEmotes, savedLocalBadges, savedLocalCheerEmotes, savedLocalEmotes
+            channelFfzEmotes, globalBadges, channelBadges, cheerEmotes, savedLocalTwitchEmotes, savedLocalBadges, savedLocalCheerEmotes, savedLocalEmotes, roomBadges, showSharedStreamBadge
         )
         holder.bind(chatMessage, result.builder)
         ChatAdapterUtils.loadImages(
@@ -151,26 +154,26 @@ class ChatAdapter(
         return MessageClickedChatAdapter(
             enableTimestamps, timestampFormat, firstMsgVisibility, firstChatMsg, redeemedChatMsg, redeemedNoMsg, rewardChatMsg, replyMessage,
             { chatMessage -> selectedMessage = chatMessage; replyClickListener?.invoke() },
-            { url, name, source, format, isAnimated, thirdParty, emoteId -> imageClickListener?.invoke(url, name, source, format, isAnimated, thirdParty, emoteId) },
+            { url, name, source, format, isAnimated, thirdParty, emoteId, roomId -> imageClickListener?.invoke(url, name, source, format, isAnimated, thirdParty, emoteId, roomId) },
             useRandomColors, useReadableColors, isLightTheme, nameDisplay, useBoldNames, showNamePaints, namePaints, paintUsers, showStvBadges,
             stvBadges, stvBadgeUsers, showPersonalEmotes, personalEmoteSets, personalEmoteSetUsers, showSystemMessageEmotes, chatUrl, getEmoteBytes,
             fragment, dialogBackgroundColor, imageLibrary, messageTextSize, emoteSize, badgeSize, emoteQuality, animateGifs, enableOverlayEmotes,
             translateAllMessages, translateMessage, showLanguageDownloadDialog, messages, userColors, savedColors, loggedInUser, localTwitchEmotes,
             globalStvEmotes, channelStvEmotes, globalBttvEmotes, channelBttvEmotes, globalFfzEmotes, channelFfzEmotes, globalBadges, channelBadges,
-            cheerEmotes, selectedMessage
+            cheerEmotes, selectedMessage, roomBadges, showSharedStreamBadge
         )
     }
 
     fun createReplyClickedChatAdapter(messages: List<ChatMessage>?): ReplyClickedChatAdapter {
         return ReplyClickedChatAdapter(
             enableTimestamps, timestampFormat, firstMsgVisibility, firstChatMsg, redeemedChatMsg, redeemedNoMsg, rewardChatMsg, replyMessage,
-            { url, name, source, format, isAnimated, thirdParty, emoteId -> imageClickListener?.invoke(url, name, source, format, isAnimated, thirdParty, emoteId) },
+            { url, name, source, format, isAnimated, thirdParty, emoteId, roomId -> imageClickListener?.invoke(url, name, source, format, isAnimated, thirdParty, emoteId, roomId) },
             useRandomColors, useReadableColors, isLightTheme, nameDisplay, useBoldNames, showNamePaints, namePaints, paintUsers, showStvBadges,
             stvBadges, stvBadgeUsers, showPersonalEmotes, personalEmoteSets, personalEmoteSetUsers, showSystemMessageEmotes, chatUrl, getEmoteBytes,
             fragment, dialogBackgroundColor, imageLibrary, messageTextSize, emoteSize, badgeSize, emoteQuality, animateGifs, enableOverlayEmotes,
             translateAllMessages, translateMessage, showLanguageDownloadDialog, messages, userColors, savedColors, loggedInUser, localTwitchEmotes,
             globalStvEmotes, channelStvEmotes, globalBttvEmotes, channelBttvEmotes, globalFfzEmotes, channelFfzEmotes, globalBadges, channelBadges,
-            cheerEmotes, selectedMessage
+            cheerEmotes, selectedMessage, roomBadges, showSharedStreamBadge
         )
     }
 
