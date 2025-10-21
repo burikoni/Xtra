@@ -96,12 +96,33 @@
         android:id="@+id/action_global_updateSettingsFragment"
         app:destination="@id/updateSettingsFragment" />
     <fragment
+        android:id="@+id/networkSettingsFragment"
+        android:name="com.github.andreyasadchy.xtra.ui.settings.SettingsActivity$NetworkSettingsFragment"
+        android:label="@string/network_settings" />
+    <action
+        android:id="@+id/action_global_networkSettingsFragment"
+        app:destination="@id/networkSettingsFragment" />
+    <fragment
+        android:id="@+id/backupAndRestoreSettingsFragment"
+        android:name="com.github.andreyasadchy.xtra.ui.settings.SettingsActivity$BackupAndRestoreSettingsFragment"
+        android:label="@string/backup_and_restore_settings" />
+    <action
+        android:id="@+id/action_global_backupAndRestoreSettingsFragment"
+        app:destination="@id/backupAndRestoreSettingsFragment" />
+    <fragment
         android:id="@+id/debugSettingsFragment"
         android:name="com.github.andreyasadchy.xtra.ui.settings.SettingsActivity$DebugSettingsFragment"
         android:label="@string/debug_settings" />
     <action
         android:id="@+id/action_global_debugSettingsFragment"
         app:destination="@id/debugSettingsFragment" />
+    <fragment
+        android:id="@+id/aboutSettingsFragment"
+        android:name="com.github.andreyasadchy.xtra.ui.settings.SettingsActivity$AboutSettingsFragment"
+        android:label="@string/about" />
+    <action
+        android:id="@+id/action_global_aboutSettingsFragment"
+        app:destination="@id/aboutSettingsFragment" />
     <fragment
         android:id="@+id/settingsSearchFragment"
         android:name="com.github.andreyasadchy.xtra.ui.settings.SettingsActivity$SettingsSearchFragment"

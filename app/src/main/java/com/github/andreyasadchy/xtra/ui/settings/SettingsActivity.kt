@@ -55,9 +55,11 @@ import androidx.preference.forEach
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.andreyasadchy.xtra.BuildConfig
 import com.github.andreyasadchy.xtra.R
 import com.github.andreyasadchy.xtra.SettingsNavGraphDirections
 import com.github.andreyasadchy.xtra.databinding.ActivitySettingsBinding
+import com.github.andreyasadchy.xtra.databinding.FragmentAboutBinding
 import com.github.andreyasadchy.xtra.model.ui.SettingsDragListItem
 import com.github.andreyasadchy.xtra.model.ui.SettingsSearchItem
 import com.github.andreyasadchy.xtra.ui.common.IntegrityDialog
@@ -386,21 +388,6 @@ class SettingsActivity : AppCompatActivity() {
                 findNavController().navigate(SettingsNavGraphDirections.actionGlobalBufferSettingsFragment())
                 true
             }
-            findPreference<Preference>("proxy_settings")?.setOnPreferenceClickListener {
-                requireActivity().findViewById<AppBarLayout>(R.id.appBar)?.setExpanded(true)
-                findNavController().navigate(SettingsNavGraphDirections.actionGlobalProxySettingsFragment())
-                true
-            }
-            findPreference<Preference>("playback_settings")?.setOnPreferenceClickListener {
-                requireActivity().findViewById<AppBarLayout>(R.id.appBar)?.setExpanded(true)
-                findNavController().navigate(SettingsNavGraphDirections.actionGlobalPlaybackSettingsFragment())
-                true
-            }
-            findPreference<Preference>("api_token_settings")?.setOnPreferenceClickListener {
-                requireActivity().findViewById<AppBarLayout>(R.id.appBar)?.setExpanded(true)
-                findNavController().navigate(SettingsNavGraphDirections.actionGlobalApiTokenSettingsFragment())
-                true
-            }
             findPreference<Preference>("download_settings")?.setOnPreferenceClickListener {
                 requireActivity().findViewById<AppBarLayout>(R.id.appBar)?.setExpanded(true)
                 findNavController().navigate(SettingsNavGraphDirections.actionGlobalDownloadSettingsFragment())
@@ -419,22 +406,28 @@ class SettingsActivity : AppCompatActivity() {
                 findNavController().navigate(SettingsNavGraphDirections.actionGlobalUpdateSettingsFragment())
                 true
             }
-            findPreference<Preference>("backup_settings")?.setOnPreferenceClickListener {
-                backupResultLauncher?.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
+            findPreference<Preference>("network_settings")?.setOnPreferenceClickListener {
+                requireActivity().findViewById<AppBarLayout>(R.id.appBar)?.setExpanded(true)
+                findNavController().navigate(SettingsNavGraphDirections.actionGlobalNetworkSettingsFragment())
                 true
             }
-            findPreference<Preference>("restore_settings")?.setOnPreferenceClickListener {
-                restoreResultLauncher?.launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "*/*"
-                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-                })
+            findPreference<Preference>("backup_and_restore_settings")?.setOnPreferenceClickListener {
+                requireActivity().findViewById<AppBarLayout>(R.id.appBar)?.setExpanded(true)
+                findNavController().navigate(SettingsNavGraphDirections.actionGlobalBackupAndRestoreSettingsFragment())
                 true
             }
             findPreference<Preference>("debug_settings")?.setOnPreferenceClickListener {
                 requireActivity().findViewById<AppBarLayout>(R.id.appBar)?.setExpanded(true)
                 findNavController().navigate(SettingsNavGraphDirections.actionGlobalDebugSettingsFragment())
                 true
+            }
+            findPreference<Preference>("about_settings")?.apply {
+                setOnPreferenceClickListener {
+                    requireActivity().findViewById<AppBarLayout>(R.id.appBar)?.setExpanded(true)
+                    findNavController().navigate(SettingsNavGraphDirections.actionGlobalAboutSettingsFragment())
+                    true
+                }
+                summary = getString(R.string.app_name) + " v${BuildConfig.VERSION_NAME}"
             }
         }
 
@@ -1288,8 +1281,18 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     class UpdateSettingsFragment : MaterialPreferenceFragment() {
+        private val viewModel: SettingsViewModel by activityViewModels()
+
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.update_preferences, rootKey)
+            findPreference<Preference>("check_updates")?.setOnPreferenceClickListener {
+                viewModel.checkUpdates(
+                    requireContext().prefs().getString(C.NETWORK_LIBRARY, "OkHttp"),
+                    requireContext().prefs().getString(C.UPDATE_URL, null) ?: "https://api.github.com/repos/crackededed/xtra/releases/tags/latest",
+                    requireContext().tokenPrefs().getLong(C.UPDATE_LAST_CHECKED, 0)
+                )
+                true
+            }
             findPreference<SwitchPreferenceCompat>("update_check_enabled")?.setOnPreferenceChangeListener { _, newValue ->
                 if (Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
                     newValue == true &&
@@ -1359,6 +1362,126 @@ class SettingsActivity : AppCompatActivity() {
             }
             (requireActivity() as? SettingsActivity)?.getSelectedSearchItem()?.let { scrollToPreference(it) }
         }
+    }
+
+    class NetworkSettingsFragment : MaterialPreferenceFragment() {
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.network_preferences, rootKey)
+            findPreference<Preference>("proxy_settings")?.setOnPreferenceClickListener {
+                requireActivity().findViewById<AppBarLayout>(R.id.appBar)?.setExpanded(true)
+                findNavController().navigate(SettingsNavGraphDirections.actionGlobalProxySettingsFragment())
+                true
+            }
+            findPreference<Preference>("api_token_settings")?.setOnPreferenceClickListener {
+                requireActivity().findViewById<AppBarLayout>(R.id.appBar)?.setExpanded(true)
+                findNavController().navigate(SettingsNavGraphDirections.actionGlobalApiTokenSettingsFragment())
+                true
+            }
+            findPreference<Preference>("playback_settings")?.setOnPreferenceClickListener {
+                requireActivity().findViewById<AppBarLayout>(R.id.appBar)?.setExpanded(true)
+                findNavController().navigate(SettingsNavGraphDirections.actionGlobalPlaybackSettingsFragment())
+                true
+            }
+        }
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            ViewCompat.setOnApplyWindowInsetsListener(view) { _, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                listView.updatePadding(bottom = insets.bottom)
+                WindowInsetsCompat.CONSUMED
+            }
+            requireActivity().findViewById<AppBarLayout>(R.id.appBar)?.let { appBar ->
+                if (requireContext().prefs().getBoolean(C.UI_THEME_APPBAR_LIFT, true)) {
+                    listView.let {
+                        appBar.setLiftOnScrollTargetView(it)
+                        it.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                                super.onScrolled(recyclerView, dx, dy)
+                                appBar.isLifted = recyclerView.canScrollVertically(-1)
+                            }
+                        })
+                        it.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+                            appBar.isLifted = it.canScrollVertically(-1)
+                        }
+                    }
+                } else {
+                    appBar.setLiftable(false)
+                    appBar.background = null
+                }
+            }
+            (requireActivity() as? SettingsActivity)?.getSelectedSearchItem()?.let { scrollToPreference(it) }
+        }
+    }
+
+    class BackupAndRestoreSettingsFragment : MaterialPreferenceFragment() {
+
+        private val viewModel: SettingsViewModel by activityViewModels()
+        private var backupResultLauncher: ActivityResultLauncher<Intent>? = null
+        private var restoreResultLauncher: ActivityResultLauncher<Intent>? = null
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            backupResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    result.data?.data?.let {
+                        viewModel.backupSettings(it.toString())
+                    }
+                }
+            }
+            restoreResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    val list = mutableListOf<String>()
+                    result.data?.clipData?.let { clipData ->
+                        for (i in 0 until clipData.itemCount) {
+                            val item = clipData.getItemAt(i)
+                            item.uri?.let {
+                                list.add(it.toString())
+                            }
+                        }
+                    } ?: result.data?.data?.let {
+                        list.add(it.toString())
+                    }
+                    viewModel.restoreSettings(
+                        list = list,
+                        networkLibrary = requireContext().prefs().getString(C.NETWORK_LIBRARY, "OkHttp"),
+                        gqlHeaders = TwitchApiHelper.getGQLHeaders(requireContext(), true),
+                        helixHeaders = TwitchApiHelper.getHelixHeaders(requireContext())
+                    )
+                }
+            }
+        }
+
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.backup_and_restore_preferences, rootKey)
+            findPreference<Preference>("backup_settings")?.setOnPreferenceClickListener {
+                backupResultLauncher?.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
+                true
+            }
+            findPreference<Preference>("restore_settings")?.setOnPreferenceClickListener {
+                restoreResultLauncher?.launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "*/*"
+                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                })
+                true
+            }
+            findPreference<Preference>("reset_settings")?.setOnPreferenceClickListener {
+                requireActivity().getAlertDialogBuilder()
+                    .setMessage(getString(R.string.reset_settings_alert_message))
+                    .setPositiveButton(getString(R.string.yes)) { _, _ ->
+                        viewModel.resetSettings()
+                    }
+                    .setNegativeButton(getString(R.string.no), null)
+                    .show()
+                true
+            }
+        }
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+        }
+
     }
 
     class DebugSettingsFragment : MaterialPreferenceFragment() {
@@ -1527,6 +1650,19 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    class AboutSettingsFragment : Fragment(R.layout.fragment_about) {
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            FragmentAboutBinding.inflate(inflater, container, false).apply {
+                buildVersionName.text = BuildConfig.VERSION_NAME
+                return root
+            }
+        }
+    }
+
     class SettingsSearchFragment : Fragment() {
         private var preferences: List<SettingsSearchItem>? = null
         private var adapter: SettingsSearchAdapter? = null
@@ -1591,20 +1727,19 @@ class SettingsActivity : AppCompatActivity() {
                 val list = mutableListOf<SettingsSearchItem>()
                 val preferenceManager = PreferenceManager(requireContext())
                 listOf(
-                    Triple(R.xml.api_token_preferences, SettingsNavGraphDirections.actionGlobalApiTokenSettingsFragment(), requireContext().getString(R.string.api_token_settings)),
                     Triple(R.xml.buffer_preferences, SettingsNavGraphDirections.actionGlobalBufferSettingsFragment(), requireContext().getString(R.string.buffer_settings)),
                     Triple(R.xml.chat_preferences, SettingsNavGraphDirections.actionGlobalChatSettingsFragment(), requireContext().getString(R.string.chat_settings)),
                     Triple(R.xml.debug_preferences, SettingsNavGraphDirections.actionGlobalDebugSettingsFragment(), requireContext().getString(R.string.debug_settings)),
                     Triple(R.xml.download_preferences, SettingsNavGraphDirections.actionGlobalDownloadSettingsFragment(), requireContext().getString(R.string.download_settings)),
-                    Triple(R.xml.playback_preferences, SettingsNavGraphDirections.actionGlobalPlaybackSettingsFragment(), requireContext().getString(R.string.playback_settings)),
                     Triple(R.xml.player_button_preferences, SettingsNavGraphDirections.actionGlobalPlayerButtonSettingsFragment(), requireContext().getString(R.string.player_buttons)),
                     Triple(R.xml.player_menu_preferences, SettingsNavGraphDirections.actionGlobalPlayerMenuSettingsFragment(), requireContext().getString(R.string.player_menu_settings)),
                     Triple(R.xml.player_preferences, SettingsNavGraphDirections.actionGlobalPlayerSettingsFragment(), requireContext().getString(R.string.player_settings)),
-                    Triple(R.xml.proxy_preferences, SettingsNavGraphDirections.actionGlobalProxySettingsFragment(), requireContext().getString(R.string.proxy_settings)),
                     Triple(R.xml.root_preferences, SettingsNavGraphDirections.actionGlobalSettingsFragment(), null),
                     Triple(R.xml.theme_preferences, SettingsNavGraphDirections.actionGlobalThemeSettingsFragment(), requireContext().getString(R.string.theme)),
                     Triple(R.xml.ui_preferences, SettingsNavGraphDirections.actionGlobalUiSettingsFragment(), requireContext().getString(R.string.ui_settings)),
                     Triple(R.xml.update_preferences, SettingsNavGraphDirections.actionGlobalUpdateSettingsFragment(), requireContext().getString(R.string.update_settings)),
+                    Triple(R.xml.backup_and_restore_preferences, SettingsNavGraphDirections.actionGlobalBackupAndRestoreSettingsFragment(), requireContext().getString(R.string.backup_and_restore_settings)),
+                    Triple(R.xml.network_preferences, SettingsNavGraphDirections.actionGlobalNetworkSettingsFragment(), requireContext().getString(R.string.network_settings)),
                 ).forEach { item ->
                     preferenceManager.inflateFromResource(requireContext(), item.first, null).forEach {
                         when (it) {

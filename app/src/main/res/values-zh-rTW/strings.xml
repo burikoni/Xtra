@@ -666,7 +666,7 @@
     <string name="live_max_speed_summary">串流實況最大速度（浮點數）</string>
     <string name="live_target_offset_summary">實況偏移量（毫秒）</string>
     <string name="hide_stream_previews">隱藏串流預覽</string>
-    <string name="player_settings">播放器</string>
+    <string name="player">播放器</string>
     <string name="save_video_positions">儲存觀看影片的位置</string>
     <string name="delete_video_positions">刪除影片位置</string>
     <string name="delete_video_positions_message">您確認您想要刪除所有儲存的影片位置嗎？</string>
@@ -713,4 +713,18 @@
     <string name="add_tag">Add tag</string>
     <string name="save_filters">Save filters</string>
     <string name="delete_filter_message">Are you sure you want to delete this filter?</string>
+    <string name="reset_settings">Reset settings</string>
+    <string name="backup_and_restore_settings">Backup and restore</string>
+    <string name="advanced_settings">Advanced settings</string>
+    <string name="player_settings">Player settings</string>
+    <string name="appearance">Appearance</string>
+    <string name="network_settings">Network</string>
+    <string name="updates">Updates</string>
+    <string name="about">About</string>
+    <string name="license">License</string>
+    <string name="social">Social</string>
+    <string name="source_code">Source code</string>
+    <string name="version">Version</string>
+    <string name="app_description">Xtra is a Twitch player and browser for Android.</string>
+    <string name="reset_settings_alert_message">Are you sure you want to reset settings?</string>
 </resources>

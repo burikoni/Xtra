@@ -671,7 +671,7 @@
     <string name="live_max_speed_summary">Velocidad máxima de reproducción (float)</string>
     <string name="live_target_offset_summary">Desfase respecto al En vivo (ms)</string>
     <string name="hide_stream_previews">Ocultar las previas de las transmisiones</string>
-    <string name="player_settings">Reproductor</string>
+    <string name="player">Reproductor</string>
     <string name="save_video_positions">Guardar la posición de los vídeos vistos</string>
     <string name="delete_video_positions">Eliminar posiciones de vídeo</string>
     <string name="delete_video_positions_message">¿Seguro que quieres borrar todas las posiciones guardadas?</string>
@@ -718,4 +718,18 @@
     <string name="add_tag">Add tag</string>
     <string name="save_filters">Save filters</string>
     <string name="delete_filter_message">Are you sure you want to delete this filter?</string>
+    <string name="reset_settings">Restablecer ajustes</string>
+    <string name="backup_and_restore_settings">Respaldar y restaurar</string>
+    <string name="advanced_settings">Configuraciones avanzadas</string>
+    <string name="player_settings">Configuración del reproductor</string>
+    <string name="appearance">Apariencia</string>
+    <string name="network_settings">Red</string>
+    <string name="updates">Actualizaciones</string>
+    <string name="about">Acerca de</string>
+    <string name="license">Licencia</string>
+    <string name="social">Social</string>
+    <string name="source_code">Código fuente</string>
+    <string name="version">Versión</string>
+    <string name="app_description">Xtra es un reproductor y navegador de Twitch para Android.</string>
+    <string name="reset_settings_alert_message">¿Estás seguro de que quieres restablecer la configuración?</string>
 </resources>

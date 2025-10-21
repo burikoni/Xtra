@@ -443,6 +443,31 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun resetSettings() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val preferences = File("${applicationContext.applicationInfo.dataDir}/shared_prefs/${applicationContext.packageName}_preferences.xml")
+            preferences.delete()
+
+            // Restore to system default language.
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(null))
+
+            val database = applicationContext.getDatabasePath("database")
+            File(database.parent, "database-shm").delete()
+            File(database.parent, "database-wal").delete()
+            database.delete()
+
+            WorkManager.getInstance(applicationContext).cancelUniqueWork("live_notifications")
+
+            applicationContext.startActivity(
+                Intent(applicationContext, MainActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                }
+            )
+
+            exitProcess(0)
+        }
+    }
+
     fun toggleNotifications(enabled: Boolean, networkLibrary: String?, gqlHeaders: Map<String, String>, helixHeaders: Map<String, String>) {
         viewModelScope.launch(Dispatchers.IO) {
             if (enabled) {

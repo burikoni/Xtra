@@ -666,7 +666,7 @@
     <string name="live_max_speed_summary">Максимальная скорость воспроизведения трансляций в режиме потока</string>
     <string name="live_target_offset_summary">Смещение от границы прямого эфира в миллисекундах</string>
     <string name="hide_stream_previews">Скрыть миниатюры трансляций</string>
-    <string name="player_settings">Проигрыватель</string>
+    <string name="player">Проигрыватель</string>
     <string name="save_video_positions">Сохранять позиции в просмотренных видео</string>
     <string name="delete_video_positions">Удалить позиции в видео</string>
     <string name="delete_video_positions_message">Уверены, что хотите удалить все сохранённые позиции в видео?</string>
@@ -713,4 +713,18 @@
     <string name="add_tag">Add tag</string>
     <string name="save_filters">Save filters</string>
     <string name="delete_filter_message">Are you sure you want to delete this filter?</string>
+    <string name="reset_settings">Reset settings</string>
+    <string name="backup_and_restore_settings">Backup and restore</string>
+    <string name="advanced_settings">Advanced settings</string>
+    <string name="player_settings">Player settings</string>
+    <string name="appearance">Appearance</string>
+    <string name="network_settings">Network</string>
+    <string name="updates">Updates</string>
+    <string name="about">About</string>
+    <string name="license">License</string>
+    <string name="social">Social</string>
+    <string name="source_code">Source code</string>
+    <string name="version">Version</string>
+    <string name="app_description">Xtra is a Twitch player and browser for Android.</string>
+    <string name="reset_settings_alert_message">Are you sure you want to reset settings?</string>
 </resources>
