@@ -33,6 +33,7 @@ import com.github.andreyasadchy.xtra.util.convertDpToPixels
 import com.github.andreyasadchy.xtra.util.gone
 import com.github.andreyasadchy.xtra.util.prefs
 import com.github.andreyasadchy.xtra.util.visible
+import java.util.Locale
 
 class StreamsCompactAdapter(
     private val fragment: Fragment,
@@ -109,7 +110,11 @@ class StreamsCompactAdapter(
                         } else {
                             item.channelName
                         }
-                        username.setOnClickListener(channelListener)
+                        item.collaborationGuests?.let {
+                            collaborationCount.text = String.format(Locale.getDefault(), "+%d", it.size)
+                            collaborationCount.visible()
+                        }
+                        usernameLayout.setOnClickListener(channelListener)
                     } else {
                         username.gone()
                     }

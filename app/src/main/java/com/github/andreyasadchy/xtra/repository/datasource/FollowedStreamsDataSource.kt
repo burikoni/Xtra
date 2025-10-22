@@ -6,6 +6,7 @@ import com.github.andreyasadchy.xtra.model.ui.Stream
 import com.github.andreyasadchy.xtra.repository.GraphQLRepository
 import com.github.andreyasadchy.xtra.repository.HelixRepository
 import com.github.andreyasadchy.xtra.repository.LocalFollowChannelRepository
+import com.github.andreyasadchy.xtra.repository.helper.StreamTogetherHelper
 import com.github.andreyasadchy.xtra.util.C
 
 class FollowedStreamsDataSource(
@@ -21,6 +22,20 @@ class FollowedStreamsDataSource(
 ) : PagingSource<Int, Stream>() {
     private var api: String? = null
     private var offset: String? = null
+
+    private suspend fun loadCollaborations(streams: List<Stream>): List<Stream> {
+        return try {
+            StreamTogetherHelper.getStreamsWithCollaborations(
+                gqlHeaders,
+                graphQLRepository,
+                enableIntegrity,
+                networkLibrary,
+                streams
+            )
+        } catch(_: Exception) {
+            streams
+        }
+    }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Stream> {
         return if (!offset.isNullOrBlank()) {
@@ -119,10 +134,11 @@ class FollowedStreamsDataSource(
                 )
             }
         }
+        val listWithCollaborations = loadCollaborations(list)
         offset = items.lastOrNull()?.cursor?.toString()
         val nextPage = data.pageInfo?.hasNextPage != false
         return LoadResult.Page(
-            data = list,
+            data = listWithCollaborations,
             prevKey = null,
             nextKey = if (!offset.isNullOrBlank() && nextPage) {
                 (params.key ?: 1) + 1
@@ -157,10 +173,11 @@ class FollowedStreamsDataSource(
                 )
             }
         }
+        val listWithCollaborations = loadCollaborations(list)
         offset = items.lastOrNull()?.cursor
         val nextPage = data.pageInfo?.hasNextPage != false
         return LoadResult.Page(
-            data = list,
+            data = listWithCollaborations,
             prevKey = null,
             nextKey = if (!offset.isNullOrBlank() && nextPage) {
                 (params.key ?: 1) + 1
@@ -202,9 +219,10 @@ class FollowedStreamsDataSource(
                 tags = it.tags
             )
         }
+        val listWithCollaborations = loadCollaborations(list)
         offset = response.pagination?.cursor
         return LoadResult.Page(
-            data = list,
+            data = listWithCollaborations,
             prevKey = null,
             nextKey = if (!offset.isNullOrBlank()) {
                 (params.key ?: 1) + 1
@@ -242,8 +260,9 @@ class FollowedStreamsDataSource(
                 } else null
             }
         }
+        val listWithCollaborations = loadCollaborations(list)
         return LoadResult.Page(
-            data = list,
+            data = listWithCollaborations,
             prevKey = null,
             nextKey = null
         )
@@ -285,8 +304,9 @@ class FollowedStreamsDataSource(
                 )
             } else null
         }
+        val listWithCollaborations = loadCollaborations(list)
         return LoadResult.Page(
-            data = list,
+            data = listWithCollaborations,
             prevKey = null,
             nextKey = null
         )

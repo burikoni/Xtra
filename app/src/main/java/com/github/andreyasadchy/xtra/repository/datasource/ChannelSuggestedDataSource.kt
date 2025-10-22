@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.github.andreyasadchy.xtra.model.ui.Stream
 import com.github.andreyasadchy.xtra.repository.GraphQLRepository
+import com.github.andreyasadchy.xtra.repository.helper.StreamTogetherHelper
 
 class ChannelSuggestedDataSource(
     private val channelLogin: String?,
@@ -12,6 +13,20 @@ class ChannelSuggestedDataSource(
     private val enableIntegrity: Boolean,
     private val networkLibrary: String?,
 ) : PagingSource<Int, Stream>() {
+
+    private suspend fun loadCollaborations(streams: List<Stream>): List<Stream> {
+        return try {
+            StreamTogetherHelper.getStreamsWithCollaborations(
+                gqlHeaders,
+                graphQLRepository,
+                enableIntegrity,
+                networkLibrary,
+                streams
+            )
+        } catch(_: Exception) {
+            streams
+        }
+    }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Stream> {
         return try {
@@ -39,8 +54,9 @@ class ChannelSuggestedDataSource(
                     )
                 }
             } ?: emptyList()
+            val listWithCollaborations = loadCollaborations(list)
             LoadResult.Page(
-                data = list,
+                data = listWithCollaborations,
                 prevKey = null,
                 nextKey = null
             )

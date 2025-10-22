@@ -20,6 +20,7 @@ import coil3.request.crossfade
 import coil3.request.target
 import coil3.request.transformations
 import coil3.transform.CircleCropTransformation
+import com.apollographql.apollo.api.Error
 import com.github.andreyasadchy.xtra.R
 import com.github.andreyasadchy.xtra.databinding.FragmentStreamsListItemBinding
 import com.github.andreyasadchy.xtra.model.ui.Stream
@@ -35,6 +36,7 @@ import com.github.andreyasadchy.xtra.util.convertDpToPixels
 import com.github.andreyasadchy.xtra.util.gone
 import com.github.andreyasadchy.xtra.util.prefs
 import com.github.andreyasadchy.xtra.util.visible
+import java.util.Locale
 
 class StreamsAdapter(
     private val fragment: Fragment,
@@ -111,7 +113,11 @@ class StreamsAdapter(
                         } else {
                             item.channelName
                         }
-                        username.setOnClickListener(channelListener)
+                        item.collaborationGuests?.let {
+                            collaborationCount.text = String.format(Locale.getDefault(), "+%d", it.size)
+                            collaborationCount.visible()
+                        }
+                        usernameLayout.setOnClickListener(channelListener)
                     } else {
                         username.gone()
                     }
@@ -165,7 +171,7 @@ class StreamsAdapter(
                     }
                     if (item.viewerCount != null) {
                         viewers.visible()
-                        viewers.text = TwitchApiHelper.formatViewersCount(context, item.viewerCount ?: 0, context.prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
+                        viewers.text = TwitchApiHelper.formatViewersCount(context, item.collaborationViewersCount ?: item.viewerCount ?: 0, context.prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
                     } else {
                         viewers.gone()
                     }
