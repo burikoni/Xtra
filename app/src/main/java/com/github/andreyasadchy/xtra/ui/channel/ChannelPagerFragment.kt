@@ -615,7 +615,7 @@ class ChannelPagerFragment : BaseNetworkFragment(), Scrollable, FragmentHost, In
             if (stream?.viewerCount != null) {
                 streamLayout.visible()
                 viewers.visible()
-                viewers.text = TwitchApiHelper.formatViewersCount(requireContext(), stream.viewerCount ?: 0, requireContext().prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
+                viewers.text = TwitchApiHelper.formatViewersCount(requireContext(), stream.collaborationViewersCount ?: stream.viewerCount ?: 0, requireContext().prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
             } else {
                 viewers.gone()
             }

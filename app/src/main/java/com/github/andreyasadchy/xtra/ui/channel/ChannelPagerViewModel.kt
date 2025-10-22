@@ -19,6 +19,7 @@ import com.github.andreyasadchy.xtra.repository.LocalFollowChannelRepository
 import com.github.andreyasadchy.xtra.repository.NotificationUsersRepository
 import com.github.andreyasadchy.xtra.repository.OfflineRepository
 import com.github.andreyasadchy.xtra.repository.ShownNotificationsRepository
+import com.github.andreyasadchy.xtra.repository.helper.StreamTogetherHelper
 import com.github.andreyasadchy.xtra.util.C
 import com.github.andreyasadchy.xtra.util.HttpEngineUtils
 import com.github.andreyasadchy.xtra.util.TwitchApiHelper
@@ -84,7 +85,7 @@ class ChannelPagerViewModel @Inject constructor(
                         }
                     }
                     response.data!!.user?.let {
-                        Stream(
+                        val stream = Stream(
                             id = it.stream?.id,
                             channelId = it.id,
                             channelLogin = it.login,
@@ -118,6 +119,7 @@ class ChannelPagerViewModel @Inject constructor(
                                 lastBroadcast = it.lastBroadcast?.startedAt?.toString()
                             )
                         )
+                        StreamTogetherHelper.getStreamsWithCollaborations(gqlHeaders, graphQLRepository, enableIntegrity, networkLibrary, listOf(stream)).first()
                     }
                 } catch (e: Exception) {
                     if (!helixHeaders[C.HEADER_TOKEN].isNullOrBlank()) {
@@ -128,7 +130,7 @@ class ChannelPagerViewModel @Inject constructor(
                                 ids = args.channelId?.let { listOf(it) },
                                 logins = if (args.channelId.isNullOrBlank()) args.channelLogin?.let { listOf(it) } else null
                             ).data.firstOrNull()?.let {
-                                Stream(
+                                val stream = Stream(
                                     id = it.id,
                                     channelId = it.channelId,
                                     channelLogin = it.channelLogin,
@@ -142,6 +144,7 @@ class ChannelPagerViewModel @Inject constructor(
                                     thumbnailUrl = it.thumbnailUrl,
                                     tags = it.tags
                                 )
+                                StreamTogetherHelper.getStreamsWithCollaborations(gqlHeaders, graphQLRepository, enableIntegrity, networkLibrary, listOf(stream)).first()
                             }
                         } catch (e: Exception) {
                             null
