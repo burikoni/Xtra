@@ -5,6 +5,7 @@ import androidx.paging.PagingState
 import com.github.andreyasadchy.xtra.model.ui.Stream
 import com.github.andreyasadchy.xtra.repository.GraphQLRepository
 import com.github.andreyasadchy.xtra.repository.HelixRepository
+import com.github.andreyasadchy.xtra.repository.helper.StreamTogetherHelper
 import com.github.andreyasadchy.xtra.util.C
 
 class SearchStreamsDataSource(
@@ -19,6 +20,20 @@ class SearchStreamsDataSource(
 ) : PagingSource<Int, Stream>() {
     private var api: String? = null
     private var offset: String? = null
+
+    private suspend fun loadCollaborations(streams: List<Stream>): List<Stream> {
+        return try {
+            StreamTogetherHelper.getStreamsWithCollaborations(
+                gqlHeaders,
+                graphQLRepository,
+                enableIntegrity,
+                networkLibrary,
+                streams
+            )
+        } catch(_: Exception) {
+            streams
+        }
+    }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Stream> {
         return if (query.isBlank()) {
@@ -83,10 +98,11 @@ class SearchStreamsDataSource(
                 )
             }
         }
+        val listWithCollaborations = loadCollaborations(list)
         offset = data.edges.lastOrNull()?.cursor?.toString()
         val nextPage = data.pageInfo?.hasNextPage != false
         return LoadResult.Page(
-            data = list,
+            data = listWithCollaborations,
             prevKey = null,
             nextKey = if (!offset.isNullOrBlank() && nextPage) {
                 (params.key ?: 1) + 1
@@ -118,9 +134,10 @@ class SearchStreamsDataSource(
                 )
             } else null
         }
+        val listWithCollaborations = loadCollaborations(list)
         offset = response.pagination?.cursor
         return LoadResult.Page(
-            data = list,
+            data = listWithCollaborations,
             prevKey = null,
             nextKey = if (!offset.isNullOrBlank()) {
                 (params.key ?: 1) + 1

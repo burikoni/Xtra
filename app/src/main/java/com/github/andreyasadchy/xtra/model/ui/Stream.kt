@@ -22,6 +22,9 @@ class Stream(
     var profileImageUrl: String? = null,
     val tags: List<String>? = null,
     val user: User? = null,
+
+    var collaborationViewersCount: Int? = null,
+    var collaborationGuests: List<User>? = null
 ) : Parcelable {
 
     val thumbnail: String?

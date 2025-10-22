@@ -78,6 +78,7 @@ import com.github.andreyasadchy.xtra.model.gql.search.SearchStreamTagsResponse
 import com.github.andreyasadchy.xtra.model.gql.search.SearchVideosResponse
 import com.github.andreyasadchy.xtra.model.gql.stream.StreamsResponse
 import com.github.andreyasadchy.xtra.model.gql.stream.ViewerCountResponse
+import com.github.andreyasadchy.xtra.model.gql.together.GuestStartBatchCollaborationResponse
 import com.github.andreyasadchy.xtra.model.gql.video.VideoGamesResponse
 import com.github.andreyasadchy.xtra.model.gql.video.VideoMessagesResponse
 import com.github.andreyasadchy.xtra.type.BadgeImageSize
@@ -1640,5 +1641,29 @@ class GraphQLRepository @Inject constructor(
             }
         }.toString()
         json.decodeFromString<ErrorResponse>(sendPersistedQuery(networkLibrary, headers, body))
+    }
+
+    suspend fun guestStarBatchCollaboration(networkLibrary: String?, headers: Map<String, String>, channelIds: List<String>?): GuestStartBatchCollaborationResponse = withContext(Dispatchers.IO) {
+        val body = buildJsonObject {
+            putJsonObject("extensions") {
+                putJsonObject("persistedQuery") {
+                    put("sha256Hash", "096d50357df5e938f4fa83fe2acf25cb0f4886149aa81ddb9754eae98c05f2dd")
+                    put("version", 1)
+                }
+            }
+            put("operationName", "GuestStarBatchCollaborationQuery")
+            putJsonObject("variables") {
+                putJsonObject("options") {
+                    putJsonArray("channelIDs") {
+                        channelIds?.forEach {
+                            add(it)
+                        }
+                    }
+                }
+                put("canDropInFlagEnabled", true)
+                put("openCallingFlagEnabled", true)
+            }
+        }.toString()
+        json.decodeFromString<GuestStartBatchCollaborationResponse>(sendPersistedQuery(networkLibrary, headers, body))
     }
 }
