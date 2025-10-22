@@ -33,6 +33,7 @@ import com.github.andreyasadchy.xtra.repository.ShownNotificationsRepository
 import com.github.andreyasadchy.xtra.repository.TranslateAllMessagesUsersRepository
 import com.github.andreyasadchy.xtra.ui.player.PlaybackService.Companion.MEDIA_PLAYLIST_REGEX
 import com.github.andreyasadchy.xtra.ui.player.PlaybackService.Companion.MULTIVARIANT_PLAYLIST_REGEX
+import com.github.andreyasadchy.xtra.repository.helper.StreamTogetherHelper
 import com.github.andreyasadchy.xtra.util.C
 import com.github.andreyasadchy.xtra.util.HttpEngineUtils
 import com.github.andreyasadchy.xtra.util.TwitchApiHelper
@@ -294,7 +295,7 @@ class PlayerViewModel @Inject constructor(
                 response.errors?.find { it.message == "failed integrity check" }?.let { throw Exception(it.message) }
             }
             response.data!!.users?.firstOrNull()?.let {
-                Stream(
+                val stream = Stream(
                     id = it.stream?.id,
                     channelId = channelId,
                     channelLogin = it.login,
@@ -310,6 +311,7 @@ class PlayerViewModel @Inject constructor(
                     profileImageUrl = it.profileImageURL,
                     tags = it.stream?.freeformTags?.mapNotNull { tag -> tag.name }
                 )
+                StreamTogetherHelper.getStreamsWithCollaborations(gqlHeaders, graphQLRepository, enableIntegrity, networkLibrary, listOf(stream)).first()
             }
         } catch (e: Exception) {
             if (e.message == "failed integrity check") throw e
@@ -321,7 +323,7 @@ class PlayerViewModel @Inject constructor(
                     ids = channelId?.let { listOf(it) },
                     logins = if (channelId.isNullOrBlank()) channelLogin?.let { listOf(it) } else null
                 ).data.firstOrNull()?.let {
-                    Stream(
+                    val stream = Stream(
                         id = it.id,
                         channelId = it.channelId,
                         channelLogin = it.channelLogin,
@@ -335,6 +337,7 @@ class PlayerViewModel @Inject constructor(
                         thumbnailUrl = it.thumbnailUrl,
                         tags = it.tags
                     )
+                    StreamTogetherHelper.getStreamsWithCollaborations(gqlHeaders, graphQLRepository, enableIntegrity, networkLibrary, listOf(stream)).first()
                 }
             } catch (e: Exception) {
                 val response = graphQLRepository.loadViewerCount(networkLibrary, gqlHeaders, channelLogin)

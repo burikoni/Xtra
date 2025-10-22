@@ -43,7 +43,8 @@ class StreamsCompactAdapter(
             oldItem.id == newItem.id
 
         override fun areContentsTheSame(oldItem: Stream, newItem: Stream): Boolean =
-            oldItem.viewerCount == newItem.viewerCount &&
+            oldItem.collaborationViewersCount == newItem.collaborationViewersCount &&
+                    oldItem.viewerCount == newItem.viewerCount &&
                     oldItem.gameName == newItem.gameName &&
                     oldItem.title == newItem.title
     }) {
@@ -147,7 +148,7 @@ class StreamsCompactAdapter(
                     }
                     if (item.viewerCount != null) {
                         viewers.visible()
-                        viewers.text = TwitchApiHelper.formatCount(item.viewerCount ?: 0, context.prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
+                        viewers.text = TwitchApiHelper.formatCount(item.collaborationViewersCount ?: item.viewerCount ?: 0, context.prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
                     } else {
                         viewers.gone()
                     }

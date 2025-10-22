@@ -832,7 +832,7 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
                                     !prefs.getBoolean(C.CHAT_PUBSUB_ENABLED, true) ||
                                     requireView().findViewById<TextView>(R.id.playerViewersText)?.text.isNullOrBlank()
                                 ) {
-                                    updateViewerCount(stream.viewerCount)
+                                    updateViewerCount(stream.collaborationViewersCount ?: stream.viewerCount)
                                 }
                                 if (prefs.getBoolean(C.CHAT_DISABLE, false) ||
                                     !prefs.getBoolean(C.CHAT_PUBSUB_ENABLED, true) ||
@@ -3620,7 +3620,7 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
                     KEY_TYPE to STREAM,
                     KEY_STREAM_ID to item.id,
                     KEY_TITLE to item.title,
-                    KEY_VIEWER_COUNT to (item.viewerCount ?: -1),
+                    KEY_VIEWER_COUNT to (item.collaborationViewersCount ?: item.viewerCount ?: -1),
                     KEY_STARTED_AT to item.startedAt,
                     KEY_CHANNEL_ID to item.channelId,
                     KEY_CHANNEL_LOGIN to item.channelLogin,

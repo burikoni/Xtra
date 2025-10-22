@@ -12,7 +12,15 @@ object PubSubUtils {
     fun parsePlaybackMessage(message: JSONObject): PlaybackMessage? {
         val messageType = message.optString("type")
         return when {
-            messageType.startsWith("viewcount") -> PlaybackMessage(viewers = if (!message.isNull("viewers")) message.optInt("viewers") else null)
+            messageType.startsWith("viewcount") -> PlaybackMessage(
+                viewers = when {
+                    (!message.isNull("collaboration_viewers") &&
+                            message.optInt("collaboration_viewers") > 0) -> message.optInt("collaboration_viewers")
+
+                    !message.isNull("viewers") -> message.optInt("viewers")
+                    else -> null
+                }
+            )
             messageType.startsWith("stream-up") -> PlaybackMessage(true, if (!message.isNull("server_time")) message.optLong("server_time").takeIf { it > 0 } else null)
             messageType.startsWith("stream-down") -> PlaybackMessage(false)
             else -> null
