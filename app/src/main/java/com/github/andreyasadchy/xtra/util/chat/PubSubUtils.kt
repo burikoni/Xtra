@@ -13,13 +13,10 @@ object PubSubUtils {
         val messageType = message.optString("type")
         return when {
             messageType.startsWith("viewcount") -> PlaybackMessage(
-                viewers = when {
-                    (!message.isNull("collaboration_viewers") &&
-                            message.optInt("collaboration_viewers") > 0) -> message.optInt("collaboration_viewers")
-
-                    !message.isNull("viewers") -> message.optInt("viewers")
-                    else -> null
-                }
+                viewers = if (!message.isNull("viewers")) message.optInt("viewers") else null,
+                collaborationViewers = if (!message.isNull("collaboration_viewers")
+                    && message.optInt("collaboration_viewers") > 0)
+                    message.optInt("collaboration_viewers") else null
             )
             messageType.startsWith("stream-up") -> PlaybackMessage(true, if (!message.isNull("server_time")) message.optLong("server_time").takeIf { it > 0 } else null)
             messageType.startsWith("stream-down") -> PlaybackMessage(false)
@@ -158,6 +155,7 @@ object PubSubUtils {
         val live: Boolean? = null,
         val serverTime: Long? = null,
         val viewers: Int? = null,
+        val collaborationViewers: Int? = null,
     )
 
     class StreamInfo(

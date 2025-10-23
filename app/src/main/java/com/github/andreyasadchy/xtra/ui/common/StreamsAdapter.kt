@@ -113,7 +113,7 @@ class StreamsAdapter(
                         item.collaborationGuests?.let {
                             collaborationCount.text = String.format(Locale.getDefault(), "+%d", it.size)
                             collaborationCount.visible()
-                        }
+                        } ?: collaborationCount.gone()
                         usernameLayout.setOnClickListener(channelListener)
                     } else {
                         username.gone()

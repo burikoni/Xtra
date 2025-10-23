@@ -254,7 +254,7 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
-    fun loadStream(channelId: String?, channelLogin: String?, viewerCount: Int?, loop: Boolean, networkLibrary: String?, helixHeaders: Map<String, String>, gqlHeaders: Map<String, String>, enableIntegrity: Boolean) {
+    fun loadStream(channelId: String?, channelLogin: String?, viewerCount: Int?, collaborationViewersCount: Int?, loop: Boolean, networkLibrary: String?, helixHeaders: Map<String, String>, gqlHeaders: Map<String, String>, enableIntegrity: Boolean) {
         if (loop) {
             streamJob?.cancel()
             streamJob = viewModelScope.launch {

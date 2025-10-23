@@ -879,7 +879,7 @@ class ChatFragment : BaseNetworkFragment(), MessageClickedDialog.OnButtonClickLi
                                     if (it.live != null) {
                                         (parentFragment as? PlayerFragment)?.updateLiveStatus(it.live, it.serverTime, channelLogin)
                                     }
-                                    (parentFragment as? PlayerFragment)?.updateViewerCount(it.viewers)
+                                    (parentFragment as? PlayerFragment)?.updateViewerCount(it.viewers, it.collaborationViewers)
                                 }
                             }
                         }
