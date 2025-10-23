@@ -471,7 +471,7 @@ class PlayerFragment : BaseNetworkFragment(), SlidingLayout.Listener, PlayerGame
                                     !prefs.getBoolean(C.CHAT_PUBSUB_ENABLED, true) ||
                                     requireView().findViewById<TextView>(R.id.playerViewersText)?.text.isNullOrBlank()
                                 ) {
-                                    updateViewerCount(stream.collaborationViewersCount ?: stream.viewerCount)
+                                    updateViewerCount(stream.viewerCount, stream.collaborationViewersCount)
                                 }
                                 if (prefs.getBoolean(C.CHAT_DISABLE, false) ||
                                     !prefs.getBoolean(C.CHAT_PUBSUB_ENABLED, true) ||
@@ -528,8 +528,11 @@ class PlayerFragment : BaseNetworkFragment(), SlidingLayout.Listener, PlayerGame
                     requireArguments().getString(KEY_GAME_SLUG),
                     requireArguments().getString(KEY_GAME_NAME)
                 )
-                updateViewerCount(requireArguments().getInt(KEY_VIEWER_COUNT).takeIf { it != -1 })
             } else {
+                updateViewerCount(
+                    requireArguments().getInt(KEY_VIEWER_COUNT).takeIf { it != -1 },
+                    requireArguments().getInt(KEY_COLLABORATION_VIEWERS_COUNT).takeIf { it != -1 }
+                )
                 if (prefs.getBoolean(C.PLAYER_SPEEDBUTTON, true)) {
                     view.findViewById<ImageButton>(R.id.playerSpeed)?.apply {
                         visible()
@@ -1156,10 +1159,16 @@ class PlayerFragment : BaseNetworkFragment(), SlidingLayout.Listener, PlayerGame
         )
     }
 
-    fun updateViewerCount(viewerCount: Int?) {
+    fun updateViewerCount(viewerCount: Int?, collaborationViewersCount: Int?) {
         val viewers = requireView().findViewById<TextView>(R.id.playerViewersText)
         val viewerIcon = requireView().findViewById<ImageView>(R.id.playerViewersIcon)
-        if (viewerCount != null) {
+        if (collaborationViewersCount != null) {
+            viewers?.text = TwitchApiHelper.formatCount(collaborationViewersCount, requireContext().prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
+            if (prefs.getBoolean(C.PLAYER_VIEWERICON, true)) {
+                viewerIcon?.setImageResource(R.drawable.baseline_people_alt_24)
+                viewerIcon?.visible()
+            }
+        } else if (viewerCount != null) {
             viewers?.text = TwitchApiHelper.formatCount(viewerCount, requireContext().prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
             if (prefs.getBoolean(C.PLAYER_VIEWERICON, true)) {
                 viewerIcon?.visible()
@@ -2000,6 +2009,7 @@ class PlayerFragment : BaseNetworkFragment(), SlidingLayout.Listener, PlayerGame
                     channelId = requireArguments().getString(KEY_CHANNEL_ID),
                     channelLogin = requireArguments().getString(KEY_CHANNEL_LOGIN),
                     viewerCount = requireArguments().getInt(KEY_VIEWER_COUNT).takeIf { it != -1 },
+                    collaborationViewersCount = requireArguments().getInt(KEY_COLLABORATION_VIEWERS_COUNT).takeIf { it != -1 },
                     loop = requireContext().prefs().getBoolean(C.CHAT_DISABLE, false) ||
                             !requireContext().prefs().getBoolean(C.CHAT_PUBSUB_ENABLED, true) ||
                             (requireContext().prefs().getBoolean(C.CHAT_POINTS_COLLECT, true) &&
@@ -2648,6 +2658,7 @@ class PlayerFragment : BaseNetworkFragment(), SlidingLayout.Listener, PlayerGame
         private const val KEY_OFFLINE_VIDEO_ID = "offlineVideoId"
         private const val KEY_TITLE = "title"
         private const val KEY_VIEWER_COUNT = "viewerCount"
+        private const val KEY_COLLABORATION_VIEWERS_COUNT = "collaborationViewersCount"
         private const val KEY_STARTED_AT = "startedAt"
         private const val KEY_UPLOAD_DATE = "uploadDate"
         private const val KEY_DURATION = "duration"
@@ -2674,7 +2685,8 @@ class PlayerFragment : BaseNetworkFragment(), SlidingLayout.Listener, PlayerGame
                     KEY_TYPE to STREAM,
                     KEY_STREAM_ID to item.id,
                     KEY_TITLE to item.title,
-                    KEY_VIEWER_COUNT to (item.collaborationViewersCount ?: item.viewerCount ?: -1),
+                    KEY_VIEWER_COUNT to (item.viewerCount ?: -1),
+                    KEY_COLLABORATION_VIEWERS_COUNT to (item.collaborationViewersCount ?: -1),
                     KEY_STARTED_AT to item.startedAt,
                     KEY_CHANNEL_ID to item.channelId,
                     KEY_CHANNEL_LOGIN to item.channelLogin,
