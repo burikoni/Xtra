@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.constraintlayout.helper.widget.Flow
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.use
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
@@ -19,6 +20,7 @@ import coil3.request.crossfade
 import coil3.request.target
 import coil3.request.transformations
 import coil3.transform.CircleCropTransformation
+import com.github.andreyasadchy.xtra.R
 import com.github.andreyasadchy.xtra.databinding.FragmentStreamsListItemCompactBinding
 import com.github.andreyasadchy.xtra.model.ui.Stream
 import com.github.andreyasadchy.xtra.ui.channel.ChannelPagerFragmentDirections
@@ -114,7 +116,7 @@ class StreamsCompactAdapter(
                         item.collaborationGuests?.let {
                             collaborationCount.text = String.format(Locale.getDefault(), "+%d", it.size)
                             collaborationCount.visible()
-                        }
+                        } ?: collaborationCount.gone()
                         usernameLayout.setOnClickListener(channelListener)
                     } else {
                         username.gone()
@@ -149,9 +151,12 @@ class StreamsCompactAdapter(
                     } else {
                         gameName.gone()
                     }
-                    if (item.viewerCount != null) {
+                    if (item.collaborationViewersCount != null) {
                         viewers.visible()
-                        viewers.text = TwitchApiHelper.formatCount(item.collaborationViewersCount ?: item.viewerCount ?: 0, context.prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
+                        viewers.text = TwitchApiHelper.formatViewersCount(context, item.collaborationViewersCount ?: 0, context.prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
+                    } else if (item.viewerCount != null) {
+                        viewers.visible()
+                        viewers.text = TwitchApiHelper.formatViewersCount(context, item.viewerCount ?: 0, context.prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
                     } else {
                         viewers.gone()
                     }
