@@ -620,6 +620,27 @@ class ChannelPagerFragment : BaseNetworkFragment(), Scrollable, FragmentHost, In
             } else {
                 title.gone()
             }
+            if (!stream?.collaborationGuests.isNullOrEmpty()) {
+                togetherInfoText.visible()
+                val nameDisplay = requireContext().prefs().getString(C.UI_NAME_DISPLAY, "0")
+                val guestsText = stream.collaborationGuests!!.joinToString { guest ->
+                    val channelLogin = guest.channelLogin
+                    val channelName = guest.channelName!!
+                    if (channelLogin != null && !channelLogin.equals(channelName, true)) {
+                        when (nameDisplay) {
+                            "0" -> "${channelName}(${channelLogin})"
+                            "1" -> channelName
+                            else -> channelLogin
+                        }
+                    } else {
+                        channelName
+                    }
+                }
+                togetherInfoText.text = "with $guestsText"
+                togetherInfoText.isSelected = true
+            } else {
+                togetherInfoText.gone()
+            }
             if (!stream?.gameName.isNullOrBlank()) {
                 streamLayout.visible()
                 gameName.visible()

@@ -888,7 +888,8 @@ class ChatFragment : BaseNetworkFragment(), MessageClickedDialog.OnButtonClickLi
                         repeatOnLifecycle(Lifecycle.State.STARTED) {
                             viewModel.streamInfo.collectLatest {
                                 if (it != null) {
-                                    (parentFragment as? PlayerFragment)?.updateStreamInfo(it.title, it.gameId, null, it.gameName)
+                                    //TODO: implement collaborationGuestsCount
+                                    (parentFragment as? PlayerFragment)?.updateStreamInfo(it.title, it.gameId, null, it.gameName, 12345)
                                 }
                             }
                         }

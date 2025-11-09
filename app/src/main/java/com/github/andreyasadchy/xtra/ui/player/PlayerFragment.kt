@@ -589,6 +589,13 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
                         minimize()
                     }
                 }
+                val collaborationGuestsCount = requireArguments().getInt(KEY_COLLABORATION_GUESTS_COUNT)
+                if (collaborationGuestsCount != 0) {
+                    requireView().findViewById<TextView>(R.id.playerGuestsCount)?.apply {
+                        visible()
+                        text = "+${collaborationGuestsCount}"
+                    }
+                }
             }
             requireArguments().getString(KEY_TITLE).let { title ->
                 if (!title.isNullOrBlank() && prefs.getBoolean(C.PLAYER_TITLE, true)) {
@@ -839,7 +846,7 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
                                     requireView().findViewById<TextView>(R.id.playerTitle)?.text.isNullOrBlank() ||
                                     requireView().findViewById<TextView>(R.id.playerCategory)?.text.isNullOrBlank()
                                 ) {
-                                    updateStreamInfo(stream.title, stream.gameId, stream.gameSlug, stream.gameName)
+                                    updateStreamInfo(stream.title, stream.gameId, stream.gameSlug, stream.gameName, stream.collaborationGuests?.size ?: 0)
                                 }
                                 if (prefs.getBoolean(C.PLAYER_SHOW_UPTIME, true) &&
                                     requireView().findViewById<LinearLayout>(R.id.playerUptime)?.isVisible == false
@@ -887,7 +894,8 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
                     requireArguments().getString(KEY_TITLE),
                     requireArguments().getString(KEY_GAME_ID),
                     requireArguments().getString(KEY_GAME_SLUG),
-                    requireArguments().getString(KEY_GAME_NAME)
+                    requireArguments().getString(KEY_GAME_NAME),
+                    requireArguments().getInt(KEY_COLLABORATION_GUESTS_COUNT)
                 )
             } else {
                 updateViewerCount(
@@ -1754,7 +1762,7 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
         }
     }
 
-    fun updateStreamInfo(title: String?, gameId: String?, gameSlug: String?, gameName: String?) {
+    fun updateStreamInfo(title: String?, gameId: String?, gameSlug: String?, gameName: String?, collaborationGuestsCount: Int) {
         requireView().findViewById<TextView>(R.id.playerTitle)?.apply {
             if (!title.isNullOrBlank() && prefs.getBoolean(C.PLAYER_TITLE, true)) {
                 text = title.trim()
@@ -1789,6 +1797,12 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
             } else {
                 text = null
                 gone()
+            }
+        }
+        if (prefs.getBoolean(C.PLAYER_CHANNEL, true)) {
+            requireView().findViewById<TextView>(R.id.playerGuestsCount)?.apply {
+                isVisible = collaborationGuestsCount != 0
+                text = "+${collaborationGuestsCount}"
             }
         }
     }
@@ -3605,6 +3619,7 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
         private const val KEY_TITLE = "title"
         private const val KEY_VIEWER_COUNT = "viewerCount"
         private const val KEY_COLLABORATION_VIEWERS_COUNT = "collaborationViewersCount"
+        private const val KEY_COLLABORATION_GUESTS_COUNT = "collaborationGuestsCount"
         private const val KEY_STARTED_AT = "startedAt"
         private const val KEY_UPLOAD_DATE = "uploadDate"
         private const val KEY_DURATION = "duration"
@@ -3633,6 +3648,7 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
                     KEY_TITLE to item.title,
                     KEY_VIEWER_COUNT to (item.viewerCount ?: -1),
                     KEY_COLLABORATION_VIEWERS_COUNT to (item.collaborationViewersCount ?: -1),
+                    KEY_COLLABORATION_GUESTS_COUNT to (item.collaborationGuests?.size ?: 0),
                     KEY_STARTED_AT to item.startedAt,
                     KEY_CHANNEL_ID to item.channelId,
                     KEY_CHANNEL_LOGIN to item.channelLogin,
