@@ -8,6 +8,7 @@ import okhttp3.WebSocketListener
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Timer
+import java.util.UUID
 import kotlin.concurrent.schedule
 import kotlin.concurrent.scheduleAtFixedRate
 
@@ -30,6 +31,10 @@ class PubSubWebSocket(
     private val onRaidUpdate: (JSONObject, Boolean) -> Unit,
     private val onPollUpdate: (JSONObject) -> Unit,
     private val onPredictionUpdate: (JSONObject) -> Unit,
+    private val enableStreamTogether: Boolean,
+    private val onCollaborationUpdate: (JSONObject) -> Unit,
+    private val onStarGuestUpdate: (JSONObject) -> Unit,
+    private val onSharedChatUpdate: (JSONObject) -> Unit,
 ) {
     private var socket: WebSocket? = null
     private var pingTimer: Timer? = null
@@ -81,6 +86,11 @@ class PubSubWebSocket(
                 })
                 if (!userId.isNullOrBlank() && !gqlToken.isNullOrBlank() && collectPoints) {
                     put("auth_token", gqlToken)
+                }
+                if (enableStreamTogether) {
+                    put(UUID.randomUUID().toString().replace("-", "").substring(0, 21), "guest-star-channel-v1.$channelId")
+                    put(UUID.randomUUID().toString().replace("-", "").substring(0, 21), "collaboration-channel-v1.$channelId")
+                    put(UUID.randomUUID().toString().replace("-", "").substring(0, 21), "shared-chat-channel-v1.$channelId")
                 }
             })
         }.toString()
@@ -158,6 +168,9 @@ class PubSubWebSocket(
                                 }
                                 topic.startsWith("polls") && showPolls -> onPollUpdate(message)
                                 topic.startsWith("predictions-channel") && showPredictions -> onPredictionUpdate(message)
+                                topic.startsWith("collaboration-channel") -> onCollaborationUpdate(message)
+                                topic.startsWith("guest-star-channel") -> onStarGuestUpdate(message)
+                                topic.startsWith("shared-chat-channel") -> onSharedChatUpdate(message)
                             }
                         }
                     }

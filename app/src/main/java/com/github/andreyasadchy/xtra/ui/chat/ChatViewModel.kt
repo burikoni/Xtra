@@ -17,12 +17,14 @@ import com.github.andreyasadchy.xtra.model.chat.ChatMessage
 import com.github.andreyasadchy.xtra.model.chat.Chatter
 import com.github.andreyasadchy.xtra.model.chat.CheerEmote
 import com.github.andreyasadchy.xtra.model.chat.Emote
+import com.github.andreyasadchy.xtra.model.chat.GuestStarChannelSlot
 import com.github.andreyasadchy.xtra.model.chat.NamePaint
 import com.github.andreyasadchy.xtra.model.chat.Poll
 import com.github.andreyasadchy.xtra.model.chat.Prediction
 import com.github.andreyasadchy.xtra.model.chat.Raid
 import com.github.andreyasadchy.xtra.model.chat.RecentEmote
 import com.github.andreyasadchy.xtra.model.chat.RoomState
+import com.github.andreyasadchy.xtra.model.chat.SharedChatParticipant
 import com.github.andreyasadchy.xtra.model.chat.StvBadge
 import com.github.andreyasadchy.xtra.model.chat.TwitchBadge
 import com.github.andreyasadchy.xtra.model.chat.TwitchEmote
@@ -186,6 +188,12 @@ class ChatViewModel @Inject constructor(
     val newMessage = MutableStateFlow<ChatMessage?>(null)
     val chatters = ConcurrentHashMap<String?, Chatter>()
     val newChatter = MutableStateFlow<Chatter?>(null)
+
+    private val _guestStarChannelSlots = MutableStateFlow<List<GuestStarChannelSlot>>(emptyList())
+    val guestStarChannelSlots: StateFlow<List<GuestStarChannelSlot>> = _guestStarChannelSlots
+    private var sharedChatParticipants: List<SharedChatParticipant> = emptyList()
+//    private val _sharedChatParticipantBadges = MutableStateFlow<List<SharedChatParticipantBadge>?>(null)
+//    val sharedChatParticipantBadges: StateFlow<List<SharedChatParticipantBadge>?> = _sharedChatParticipantBadges
 
     fun startLive(networkLibrary: String?, channelId: String?, channelLogin: String?, channelName: String?, streamId: String?) {
         if (chatReadIRC == null && chatReadWebSocketOkHttp == null && chatReadWebSocket == null && eventSubOkHttp == null && eventSub == null && channelLogin != null) {
@@ -976,6 +984,21 @@ class ChatViewModel @Inject constructor(
                     prediction.value = it
                 }
             }
+            val onCollaborationUpdate: (JSONObject) -> Unit = { message ->
+                PubSubUtils.onCollaborationUpdate(message)?.let {
+                    _guestStarChannelSlots.value = it
+                }
+            }
+            val onStarGuestUpdate: (JSONObject) -> Unit = { message ->
+                PubSubUtils.onStarGuestUpdate(message)?.let {
+                    _guestStarChannelSlots.value = it
+                }
+            }
+            val onSharedChatUpdate: (JSONObject) -> Unit = { message ->
+                PubSubUtils.onSharedChatSessionUpdate(message).let {
+                    sharedChatParticipants = it
+                }
+            }
             val useNewPubSub = applicationContext.prefs().getBoolean(C.DEBUG_USE_NEW_PUBSUB, true)
             val webGQLToken = applicationContext.tokenPrefs().getString(C.GQL_TOKEN_WEB, null)
             if (useNewPubSub && (accountId.isNullOrBlank() || !collectPoints || !webGQLToken.isNullOrBlank() || enableIntegrity)) {
@@ -1014,6 +1037,10 @@ class ChatViewModel @Inject constructor(
                         onPredictionUpdate = onPredictionUpdate,
                         trustManager = trustManager,
                         coroutineScope = viewModelScope,
+                        enableStreamTogether = true,
+                        onCollaborationUpdate = onCollaborationUpdate,
+                        onStarGuestUpdate = onStarGuestUpdate,
+                        onSharedChatUpdate = onSharedChatUpdate,
                     ).apply { connect() }
                 } else {
                     hermesWebSocketOkHttp = HermesWebSocketOkHttp(
@@ -1039,6 +1066,10 @@ class ChatViewModel @Inject constructor(
                         onRaidUpdate = onRaidUpdate,
                         onPollUpdate = onPollUpdate,
                         onPredictionUpdate = onPredictionUpdate,
+                        enableStreamTogether = true,
+                        onCollaborationUpdate = onCollaborationUpdate,
+                        onStarGuestUpdate = onStarGuestUpdate,
+                        onSharedChatUpdate = onSharedChatUpdate,
                     ).apply { connect() }
                 }
             } else {
@@ -1061,6 +1092,10 @@ class ChatViewModel @Inject constructor(
                     onRaidUpdate = onRaidUpdate,
                     onPollUpdate = onPollUpdate,
                     onPredictionUpdate = onPredictionUpdate,
+                    enableStreamTogether = true,
+                    onCollaborationUpdate = onCollaborationUpdate,
+                    onStarGuestUpdate = onStarGuestUpdate,
+                    onSharedChatUpdate = onSharedChatUpdate,
                 ).apply { connect() }
             }
         }

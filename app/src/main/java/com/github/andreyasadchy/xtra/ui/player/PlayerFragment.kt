@@ -846,7 +846,8 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
                                     requireView().findViewById<TextView>(R.id.playerTitle)?.text.isNullOrBlank() ||
                                     requireView().findViewById<TextView>(R.id.playerCategory)?.text.isNullOrBlank()
                                 ) {
-                                    updateStreamInfo(stream.title, stream.gameId, stream.gameSlug, stream.gameName, stream.collaborationGuests?.size ?: 0)
+                                    updateStreamInfo(stream.title, stream.gameId, stream.gameSlug, stream.gameName)
+                                    updateGuestStarCount(stream.collaborationGuests?.size ?: 0)
                                 }
                                 if (prefs.getBoolean(C.PLAYER_SHOW_UPTIME, true) &&
                                     requireView().findViewById<LinearLayout>(R.id.playerUptime)?.isVisible == false
@@ -894,9 +895,9 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
                     requireArguments().getString(KEY_TITLE),
                     requireArguments().getString(KEY_GAME_ID),
                     requireArguments().getString(KEY_GAME_SLUG),
-                    requireArguments().getString(KEY_GAME_NAME),
-                    requireArguments().getInt(KEY_COLLABORATION_GUESTS_COUNT)
+                    requireArguments().getString(KEY_GAME_NAME)
                 )
+                updateGuestStarCount(requireArguments().getInt(KEY_COLLABORATION_GUESTS_COUNT))
             } else {
                 updateViewerCount(
                     requireArguments().getInt(KEY_VIEWER_COUNT).takeIf { it != -1 },
@@ -1762,7 +1763,7 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
         }
     }
 
-    fun updateStreamInfo(title: String?, gameId: String?, gameSlug: String?, gameName: String?, collaborationGuestsCount: Int) {
+    fun updateStreamInfo(title: String?, gameId: String?, gameSlug: String?, gameName: String?) {
         requireView().findViewById<TextView>(R.id.playerTitle)?.apply {
             if (!title.isNullOrBlank() && prefs.getBoolean(C.PLAYER_TITLE, true)) {
                 text = title.trim()
@@ -1799,6 +1800,9 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
                 gone()
             }
         }
+    }
+
+    fun updateGuestStarCount(collaborationGuestsCount: Int) {
         if (prefs.getBoolean(C.PLAYER_CHANNEL, true)) {
             requireView().findViewById<TextView>(R.id.playerGuestsCount)?.apply {
                 isVisible = collaborationGuestsCount != 0

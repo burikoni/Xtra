@@ -888,9 +888,16 @@ class ChatFragment : BaseNetworkFragment(), MessageClickedDialog.OnButtonClickLi
                         repeatOnLifecycle(Lifecycle.State.STARTED) {
                             viewModel.streamInfo.collectLatest {
                                 if (it != null) {
-                                    //TODO: implement collaborationGuestsCount
-                                    (parentFragment as? PlayerFragment)?.updateStreamInfo(it.title, it.gameId, null, it.gameName, 12345)
+                                    (parentFragment as? PlayerFragment)?.updateStreamInfo(it.title, it.gameId, null, it.gameName)
                                 }
+                            }
+                        }
+                    }
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            viewModel.guestStarChannelSlots.collect { slots ->
+                                val guests = slots.filter { it.channelId != channelId }
+                                (parentFragment as? PlayerFragment)?.updateGuestStarCount(guests.size)
                             }
                         }
                     }

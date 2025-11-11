@@ -1,10 +1,14 @@
 package com.github.andreyasadchy.xtra.util.chat
 
+import android.util.Log
 import com.github.andreyasadchy.xtra.model.chat.ChannelPointReward
 import com.github.andreyasadchy.xtra.model.chat.ChatMessage
+import com.github.andreyasadchy.xtra.model.chat.GuestStarChannelSlot
 import com.github.andreyasadchy.xtra.model.chat.Poll
 import com.github.andreyasadchy.xtra.model.chat.Prediction
 import com.github.andreyasadchy.xtra.model.chat.Raid
+import com.github.andreyasadchy.xtra.model.chat.SharedChatParticipant
+import com.github.andreyasadchy.xtra.model.ui.User
 import com.github.andreyasadchy.xtra.util.TwitchApiHelper
 import org.json.JSONObject
 
@@ -149,6 +153,89 @@ object PubSubUtils {
                 winningOutcomeId = if (!prediction.isNull("winning_outcome_id")) prediction.optString("winning_outcome_id").takeIf { it.isNotBlank() } else null,
             )
         } else null
+    }
+
+    fun onCollaborationUpdate(message: JSONObject) : List<GuestStarChannelSlot>? {
+        val messageType = message.optString("type")
+        return when {
+            messageType.startsWith("group-disbanded") -> emptyList()
+            messageType.startsWith("group-updated") -> {
+                val slots = mutableListOf<GuestStarChannelSlot>()
+                val messageData = message.optJSONObject("data")
+
+                val users = messageData?.optJSONArray("users")
+                if (users != null) {
+                    for (i in 0 until users.length()) {
+                        val user = users.get(i) as JSONObject
+                        val status = user.optString("status")
+                        if (status != "ACTIVE")
+                            continue
+                        val channelId = user.optString("user_id")
+                        val channelLogin = user.optString("login")
+                        val channelName = user.optString("display_name")
+                        val profileImageUrl =
+                            user.optJSONObject("profile_image_urls")?.optString("70x70")
+                        slots.add(
+                            GuestStarChannelSlot(
+                                id = i,
+                                isLive = false,
+                                channelId = channelId,
+                                channelLogin = channelLogin,
+                                channelName = channelName,
+                                profileImageUrl = profileImageUrl
+                            )
+                        )
+                    }
+                }
+                slots
+            }
+            else -> null
+        }
+    }
+
+    fun onStarGuestUpdate(message: JSONObject) : List<GuestStarChannelSlot>? {
+        val messageType = message.optString("type")
+        return when {
+            // messageType.startsWith("slot-assignments-changed") -> slotAssignmentsChanged(message, slots)
+            messageType.startsWith("slot-subscribers-deleted") || messageType.startsWith("call-ended") -> emptyList()
+            else -> null
+        }
+    }
+
+    fun onSharedChatSessionUpdate(message: JSONObject) : List<SharedChatParticipant> {
+        val messageType = message.optString("type")
+        val messageData = message.optJSONObject("data")
+        if (!messageType.startsWith("session-started") && !messageType.startsWith("session-updated")) {
+            return emptyList()
+        }
+
+        val participants = messageData?.optJSONObject("session")?.optJSONArray("participants")
+            ?: return emptyList()
+
+        val sharedChatParticipants = mutableListOf<SharedChatParticipant>()
+
+        for (i in 0 until participants.length()) {
+            val participant = participants.get(i) as JSONObject
+            val status = participant.optString("status")
+            if (status != "ACTIVE")
+                continue
+            val participantId = participant.optString("participant_id")
+            val channelId = participant.optString("channel_id")
+            val channelLogin = participant.optString("channel_login")
+            val channelName = participant.optString("channel_display_name")
+            val profileImageUrl = participant.optString("channel_profile_image_url")
+                .replace("profile_image-%s", "profile_image-70x70")
+            val sharedChatParticipant = SharedChatParticipant(
+                id = participantId,
+                channelId = channelId,
+                channelLogin = channelLogin,
+                channelName = channelName,
+                profileImageUrl = profileImageUrl
+            )
+            sharedChatParticipants.add(sharedChatParticipant)
+        }
+
+        return sharedChatParticipants
     }
 
     class PlaybackMessage(

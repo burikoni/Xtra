@@ -38,6 +38,10 @@ class HermesWebSocketOkHttp(
     private val onRaidUpdate: (JSONObject, Boolean) -> Unit,
     private val onPollUpdate: (JSONObject) -> Unit,
     private val onPredictionUpdate: (JSONObject) -> Unit,
+    private val enableStreamTogether: Boolean,
+    private val onCollaborationUpdate: (JSONObject) -> Unit,
+    private val onStarGuestUpdate: (JSONObject) -> Unit,
+    private val onSharedChatUpdate: (JSONObject) -> Unit,
 ) {
     private var socket: WebSocket? = null
     private var pongTimer: Timer? = null
@@ -94,6 +98,11 @@ class HermesWebSocketOkHttp(
                 if (collectPoints) {
                     put(UUID.randomUUID().toString().replace("-", "").substring(0, 21), "community-points-user-v1.$userId")
                 }
+            }
+            if (enableStreamTogether) {
+                put(UUID.randomUUID().toString().replace("-", "").substring(0, 21), "guest-star-channel-v1.$channelId")
+                put(UUID.randomUUID().toString().replace("-", "").substring(0, 21), "collaboration-channel-v1.$channelId")
+                put(UUID.randomUUID().toString().replace("-", "").substring(0, 21), "shared-chat-channel-v1.$channelId")
             }
         }
         topics.forEach {
@@ -215,6 +224,9 @@ class HermesWebSocketOkHttp(
                                         onPredictionUpdate(message)
                                     }
                                 }
+                                topic.startsWith("collaboration-channel") -> onCollaborationUpdate(message)
+                                topic.startsWith("guest-star-channel") -> onStarGuestUpdate(message)
+                                topic.startsWith("shared-chat-channel") -> onSharedChatUpdate(message)
                             }
                         }
                     }
