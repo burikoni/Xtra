@@ -22,5 +22,12 @@ class ViewerCountResponse(
     class Stream(
         val id: String? = null,
         val viewersCount: Int? = null,
+        val collaborationViewersCount: Int? = null,
+        val costreamDetails: CostreamDetails? = null
+    )
+
+    @Serializable
+    class CostreamDetails(
+        val totalViewersCount: Int,
     )
 }

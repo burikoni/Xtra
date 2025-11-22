@@ -4,6 +4,7 @@ import android.net.http.HttpEngine
 import android.net.http.UrlResponseInfo
 import android.os.Build
 import android.os.ext.SdkExtensions
+import android.util.Log
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.CustomScalarAdapters
 import com.apollographql.apollo.api.Optional
@@ -93,6 +94,7 @@ import com.github.andreyasadchy.xtra.util.getByteArrayCronetCallback
 import dagger.Lazy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.add
@@ -1666,4 +1668,5 @@ class GraphQLRepository @Inject constructor(
         }.toString()
         json.decodeFromString<GuestStartBatchCollaborationResponse>(sendPersistedQuery(networkLibrary, headers, body))
     }
+
 }

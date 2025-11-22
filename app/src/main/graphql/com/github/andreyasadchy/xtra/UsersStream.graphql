@@ -23,6 +23,10 @@ query UsersStream($ids: [ID!], $logins: [String!]) {
             }
             type
             viewersCount
+            costreamDetails {
+                role
+                totalViewersCount
+            }
         }
     }
 }

@@ -25,6 +25,10 @@ query SearchStreams($query: String!, $first: Int, $after: Cursor) {
                 }
                 type
                 viewersCount
+                costreamDetails {
+                    role
+                    totalViewersCount
+                }
             }
         }
         pageInfo {

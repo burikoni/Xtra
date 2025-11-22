@@ -839,7 +839,12 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
                                     !prefs.getBoolean(C.CHAT_PUBSUB_ENABLED, true) ||
                                     requireView().findViewById<TextView>(R.id.playerViewersText)?.text.isNullOrBlank()
                                 ) {
-                                    updateViewerCount(stream.viewerCount, stream.collaborationViewersCount)
+                                    updateViewerCount(
+                                        stream.viewerCount,
+                                        stream.collaborationViewersCount,
+                                        stream.costreamingViewersCount,
+                                        stream.costreamingRole
+                                    )
                                 }
                                 if (prefs.getBoolean(C.CHAT_DISABLE, false) ||
                                     !prefs.getBoolean(C.CHAT_PUBSUB_ENABLED, true) ||
@@ -901,7 +906,9 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
             } else {
                 updateViewerCount(
                     requireArguments().getInt(KEY_VIEWER_COUNT).takeIf { it != -1 },
-                    requireArguments().getInt(KEY_COLLABORATION_VIEWERS_COUNT).takeIf { it != -1 }
+                    requireArguments().getInt(KEY_COLLABORATION_VIEWERS_COUNT).takeIf { it != -1 },
+                    requireArguments().getInt(KEY_COSTREAM_VIEWERS).takeIf { it != -1 },
+                    requireArguments().getString(KEY_COSTREAM_STATUS)
                 )
                 if (prefs.getBoolean(C.PLAYER_SPEEDBUTTON, true)) {
                     view.findViewById<ImageButton>(R.id.playerSpeed)?.apply {
@@ -1712,10 +1719,16 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
         )
     }
 
-    fun updateViewerCount(viewerCount: Int?, collaborationViewersCount: Int?) {
+    fun updateViewerCount(viewerCount: Int?, collaborationViewersCount: Int?, costreamingViewersCount: Int?, costreamingRole: String?) {
         val viewers = requireView().findViewById<TextView>(R.id.playerViewersText)
         val viewerIcon = requireView().findViewById<ImageView>(R.id.playerViewersIcon)
-        if (collaborationViewersCount != null) {
+        if (costreamingViewersCount != null && costreamingRole == "ORGANIZER") {
+            viewers?.text = TwitchApiHelper.formatCount(costreamingViewersCount, requireContext().prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
+            if (prefs.getBoolean(C.PLAYER_VIEWERICON, true)) {
+                viewerIcon?.setImageResource(R.drawable.baseline_people_alt_24)
+                viewerIcon?.visible()
+            }
+        } else if (collaborationViewersCount != null) {
             viewers?.text = TwitchApiHelper.formatCount(collaborationViewersCount, requireContext().prefs().getBoolean(C.UI_TRUNCATEVIEWCOUNT, true))
             if (prefs.getBoolean(C.PLAYER_VIEWERICON, true)) {
                 viewerIcon?.setImageResource(R.drawable.baseline_people_alt_24)
@@ -2756,6 +2769,8 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
                     channelLogin = requireArguments().getString(KEY_CHANNEL_LOGIN),
                     viewerCount = requireArguments().getInt(KEY_VIEWER_COUNT).takeIf { it != -1 },
                     collaborationViewersCount = requireArguments().getInt(KEY_COLLABORATION_VIEWERS_COUNT).takeIf { it != -1 },
+                    costreamViewers = requireArguments().getInt(KEY_COSTREAM_VIEWERS).takeIf { it != -1 },
+                    costreamStatus =  requireArguments().getString(KEY_COSTREAM_STATUS),
                     loop = requireContext().prefs().getBoolean(C.CHAT_DISABLE, false) ||
                             !requireContext().prefs().getBoolean(C.CHAT_PUBSUB_ENABLED, true) ||
                             (requireContext().prefs().getBoolean(C.CHAT_POINTS_COLLECT, true) &&
@@ -3624,6 +3639,8 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
         private const val KEY_VIEWER_COUNT = "viewerCount"
         private const val KEY_COLLABORATION_VIEWERS_COUNT = "collaborationViewersCount"
         private const val KEY_COLLABORATION_GUESTS_COUNT = "collaborationGuestsCount"
+        private const val KEY_COSTREAM_VIEWERS = "costreamViewers"
+        private const val KEY_COSTREAM_STATUS = "costreamStatus"
         private const val KEY_STARTED_AT = "startedAt"
         private const val KEY_UPLOAD_DATE = "uploadDate"
         private const val KEY_DURATION = "duration"
@@ -3653,6 +3670,8 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
                     KEY_VIEWER_COUNT to (item.viewerCount ?: -1),
                     KEY_COLLABORATION_VIEWERS_COUNT to (item.collaborationViewersCount ?: -1),
                     KEY_COLLABORATION_GUESTS_COUNT to (item.collaborationGuests?.size ?: 0),
+                    KEY_COSTREAM_VIEWERS to (item.costreamingViewersCount ?: -1),
+                    KEY_COSTREAM_STATUS to (item.costreamingRole),
                     KEY_STARTED_AT to item.startedAt,
                     KEY_CHANNEL_ID to item.channelId,
                     KEY_CHANNEL_LOGIN to item.channelLogin,

@@ -25,6 +25,10 @@ query TopStreams($sort: StreamSort, $tags: [String!], $languages: [Language!], $
                 }
                 type
                 viewersCount
+                costreamDetails {
+                    role
+                    totalViewersCount
+                }
             }
         }
         pageInfo {

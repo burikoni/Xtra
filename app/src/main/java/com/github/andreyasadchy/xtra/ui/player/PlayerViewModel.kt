@@ -254,7 +254,7 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
-    fun loadStream(channelId: String?, channelLogin: String?, viewerCount: Int?, collaborationViewersCount: Int?, loop: Boolean, networkLibrary: String?, helixHeaders: Map<String, String>, gqlHeaders: Map<String, String>, enableIntegrity: Boolean) {
+    fun loadStream(channelId: String?, channelLogin: String?, viewerCount: Int?, collaborationViewersCount: Int?, costreamViewers: Int?, costreamStatus: String?, loop: Boolean, networkLibrary: String?, helixHeaders: Map<String, String>, gqlHeaders: Map<String, String>, enableIntegrity: Boolean) {
         if (loop) {
             streamJob?.cancel()
             streamJob = viewModelScope.launch {
@@ -309,7 +309,9 @@ class PlayerViewModel @Inject constructor(
                     startedAt = it.stream?.createdAt?.toString(),
                     thumbnailUrl = it.stream?.previewImageURL,
                     profileImageUrl = it.profileImageURL,
-                    tags = it.stream?.freeformTags?.mapNotNull { tag -> tag.name }
+                    tags = it.stream?.freeformTags?.mapNotNull { tag -> tag.name },
+                    costreamingRole = it.stream?.costreamDetails?.role,
+                    costreamingViewersCount = it.stream?.costreamDetails?.totalViewersCount,
                 )
                 StreamTogetherHelper.getStreamsWithCollaborations(gqlHeaders, graphQLRepository, enableIntegrity, networkLibrary, listOf(stream)).first()
             }
@@ -335,7 +337,7 @@ class PlayerViewModel @Inject constructor(
                         viewerCount = it.viewerCount,
                         startedAt = it.startedAt,
                         thumbnailUrl = it.thumbnailUrl,
-                        tags = it.tags
+                        tags = it.tags,
                     )
                     StreamTogetherHelper.getStreamsWithCollaborations(gqlHeaders, graphQLRepository, enableIntegrity, networkLibrary, listOf(stream)).first()
                 }
@@ -347,7 +349,9 @@ class PlayerViewModel @Inject constructor(
                 response.data!!.user.stream?.let {
                     Stream(
                         id = it.id,
-                        viewerCount = it.viewersCount
+                        viewerCount = it.viewersCount,
+                        costreamingRole = null,
+                        costreamingViewersCount = it.costreamDetails?.totalViewersCount,
                     )
                 }
             }

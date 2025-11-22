@@ -41,6 +41,7 @@ class GameStreamsResponse(
         val createdAt: String? = null,
         val previewImageURL: String? = null,
         val freeformTags: List<Tag>? = null,
+        val costreamDetails: CostreamDetails? = null
     )
 
     @Serializable
@@ -54,5 +55,14 @@ class GameStreamsResponse(
     @Serializable
     class Tag(
         val name: String? = null,
+    )
+
+    @Serializable
+    class CostreamDetails(
+        val costreamersCount: Int,
+        val organizer: User,
+        val role: String,
+        val topCostreamers: List<User>,
+        val totalViewersCount: Int,
     )
 }

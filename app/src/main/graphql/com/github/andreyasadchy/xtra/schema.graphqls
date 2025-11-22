@@ -270,6 +270,14 @@ type Stream {
     title: String
     type: String
     viewersCount: Int
+    costreamDetails: CostreamDetails
+}
+
+type CostreamDetails {
+    costreamersCount: Int
+    role: String
+    totalViewersCount: Int
+
 }
 
 type StreamConnection {

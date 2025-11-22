@@ -15,7 +15,7 @@ class CustomPlayerView : PlayerView {
     private var downTouchLocation = FloatArray(2)
     private var lastClickTime = 0L
 
-    private lateinit var listener: () -> Unit
+    private var listener: (() -> Unit)? = null
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
@@ -28,7 +28,7 @@ class CustomPlayerView : PlayerView {
             postDelayed(clickCallback, DOUBLE_TAP_THRESHOLD)
             if (currentTime - lastClickTime < DOUBLE_TAP_THRESHOLD) {
                 removeCallbacks(clickCallback)
-                listener()
+                listener?.invoke()
             }
             lastClickTime = currentTime
         }

@@ -130,7 +130,9 @@ class FollowedStreamsDataSource(
                     startedAt = it.stream?.createdAt?.toString(),
                     thumbnailUrl = it.stream?.previewImageURL,
                     profileImageUrl = it.profileImageURL,
-                    tags = it.stream?.freeformTags?.mapNotNull { tag -> tag.name }
+                    tags = it.stream?.freeformTags?.mapNotNull { tag -> tag.name },
+                    costreamingRole = it.stream?.costreamDetails?.role,
+                    costreamingViewersCount = it.stream?.costreamDetails?.totalViewersCount,
                 )
             }
         }
@@ -169,7 +171,7 @@ class FollowedStreamsDataSource(
                     startedAt = it.stream?.createdAt,
                     thumbnailUrl = it.stream?.previewImageURL,
                     profileImageUrl = it.profileImageURL,
-                    tags = it.stream?.freeformTags?.mapNotNull { tag -> tag.name }
+                    tags = it.stream?.freeformTags?.mapNotNull { tag -> tag.name },
                 )
             }
         }
@@ -255,7 +257,9 @@ class FollowedStreamsDataSource(
                         startedAt = it.stream.createdAt?.toString(),
                         thumbnailUrl = it.stream.previewImageURL,
                         profileImageUrl = it.profileImageURL,
-                        tags = it.stream.freeformTags?.mapNotNull { tag -> tag.name }
+                        tags = it.stream.freeformTags?.mapNotNull { tag -> tag.name },
+                        costreamingRole = it.stream.costreamDetails?.role,
+                        costreamingViewersCount = it.stream.costreamDetails?.totalViewersCount,
                     )
                 } else null
             }

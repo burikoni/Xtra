@@ -20,7 +20,11 @@ object PubSubUtils {
                 viewers = if (!message.isNull("viewers")) message.optInt("viewers") else null,
                 collaborationViewers = if (!message.isNull("collaboration_viewers")
                     && message.optInt("collaboration_viewers") > 0)
-                    message.optInt("collaboration_viewers") else null
+                    message.optInt("collaboration_viewers") else null,
+                costreamViewers = if(!message.isNull("costream_viewers")
+                    && message.optInt("costream_viewers") > 0)
+                    message.optInt("costream_viewers") else null,
+                costreamStatus = if(!message.isNull("costream_status")) message.optString("costream_status") else null,
             )
             messageType.startsWith("stream-up") -> PlaybackMessage(true, if (!message.isNull("server_time")) message.optLong("server_time").takeIf { it > 0 } else null)
             messageType.startsWith("stream-down") -> PlaybackMessage(false)
@@ -243,6 +247,8 @@ object PubSubUtils {
         val serverTime: Long? = null,
         val viewers: Int? = null,
         val collaborationViewers: Int? = null,
+        val costreamViewers: Int? = null,
+        val costreamStatus: String? = null,
     )
 
     class StreamInfo(

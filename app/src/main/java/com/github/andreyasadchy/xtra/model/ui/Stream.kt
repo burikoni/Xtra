@@ -24,7 +24,10 @@ class Stream(
     val user: User? = null,
 
     var collaborationViewersCount: Int? = null,
-    var collaborationGuests: List<User>? = null
+    var collaborationGuests: List<User>? = null,
+
+    var costreamingViewersCount: Int? = null,
+    var costreamingRole: String? = null,
 ) : Parcelable {
 
     val thumbnail: String?

@@ -10,7 +10,12 @@ class GuestStartBatchCollaborationResponse(
 ) {
     @Serializable
     class Data(
-        val guestStarChannelCollaboration: List<ChannelCollaboration>,
+        val guestStarCollaborationStatuses: CollaborationStatuses,
+    )
+
+    @Serializable
+    class CollaborationStatuses(
+        val channelCollabs: List<ChannelCollaboration>
     )
 
     @Serializable

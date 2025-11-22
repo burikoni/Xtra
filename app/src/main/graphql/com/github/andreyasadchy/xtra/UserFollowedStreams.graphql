@@ -34,6 +34,10 @@ query UserFollowedStreams($first: Int, $after: Cursor) {
                         }
                         type
                         viewersCount
+                        costreamDetails {
+                            role
+                            totalViewersCount
+                        }
                     }
                 }
             }

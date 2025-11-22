@@ -21,6 +21,10 @@ query GameStreams($id: ID, $slug: String, $name: String, $sort: StreamSort, $tag
                     }
                     type
                     viewersCount
+                    costreamDetails {
+                        role
+                        totalViewersCount
+                    }
                 }
             }
             pageInfo {

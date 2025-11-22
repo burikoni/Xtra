@@ -21,7 +21,7 @@ object StreamTogetherHelper {
                 ?.let { return streams }
         }
 
-        val data = response.data!!.guestStarChannelCollaboration
+        val data = response.data!!.guestStarCollaborationStatuses.channelCollabs
 
         val streamsAssociateIds = streams.associateBy { it.channelId }
 

@@ -98,7 +98,9 @@ class StreamsDataSource(
                     startedAt = it.createdAt?.toString(),
                     thumbnailUrl = it.previewImageURL,
                     profileImageUrl = it.broadcaster?.profileImageURL,
-                    tags = it.freeformTags?.mapNotNull { tag -> tag.name }
+                    tags = it.freeformTags?.mapNotNull { tag -> tag.name },
+                    costreamingRole = it.costreamDetails?.role,
+                    costreamingViewersCount = it.costreamDetails?.totalViewersCount,
                 )
             }
         }
@@ -137,7 +139,9 @@ class StreamsDataSource(
                     startedAt = it.createdAt,
                     thumbnailUrl = it.previewImageURL,
                     profileImageUrl = it.broadcaster?.profileImageURL,
-                    tags = it.freeformTags?.mapNotNull { tag -> tag.name }
+                    tags = it.freeformTags?.mapNotNull { tag -> tag.name },
+                    costreamingRole = it.costreamDetails?.role,
+                    costreamingViewersCount = it.costreamDetails?.totalViewersCount,
                 )
             }
         }
