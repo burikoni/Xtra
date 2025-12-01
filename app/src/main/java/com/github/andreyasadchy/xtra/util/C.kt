@@ -291,6 +291,7 @@ object C {
     const val DEBUG_EVENTSUB_CHAT = "debug_eventsub_chat"
     const val DEBUG_PLAYER_MENU_PLAYLIST_TAGS = "debug_player_menu_playlist_tags"
     const val ENABLE_INTEGRITY = "enable_integrity"
+    const val INCLUDE_COLLABORATIONS = "include_collaborations"
     const val USE_WEBVIEW_INTEGRITY = "use_webview_integrity"
     const val GET_ALL_GQL_HEADERS = "get_all_gql_headers"
 }

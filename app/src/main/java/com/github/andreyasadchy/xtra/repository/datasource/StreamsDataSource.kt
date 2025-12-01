@@ -23,23 +23,10 @@ class StreamsDataSource(
     private val enableIntegrity: Boolean,
     private val apiPref: List<String>,
     private val networkLibrary: String?,
+    private val includeCollaborations: Boolean
 ) : PagingSource<Int, Stream>() {
     private var api: String? = null
     private var offset: String? = null
-
-    private suspend fun loadCollaborations(streams: List<Stream>): List<Stream> {
-        return try {
-            StreamTogetherHelper.getStreamsWithCollaborations(
-                gqlHeaders,
-                graphQLRepository,
-                enableIntegrity,
-                networkLibrary,
-                streams
-            )
-        } catch(_: Exception) {
-            streams
-        }
-    }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Stream> {
         return if (!offset.isNullOrBlank()) {
@@ -104,11 +91,15 @@ class StreamsDataSource(
                 )
             }
         }
-        val listWithCollaborations = loadCollaborations(list)
+
+        if (includeCollaborations) {
+            StreamTogetherHelper.loadCollaborationsFromApi(gqlHeaders, graphQLRepository, enableIntegrity, networkLibrary, list, api)
+        }
+
         offset = items.lastOrNull()?.cursor?.toString()
         val nextPage = data.pageInfo?.hasNextPage != false
         return LoadResult.Page(
-            data = listWithCollaborations,
+            data = list,
             prevKey = null,
             nextKey = if (!offset.isNullOrBlank() && nextPage) {
                 (params.key ?: 1) + 1
@@ -145,11 +136,16 @@ class StreamsDataSource(
                 )
             }
         }
-        val listWithCollaborations = loadCollaborations(list)
+
+        if (includeCollaborations) {
+            StreamTogetherHelper.loadCollaborationsFromApi(gqlHeaders, graphQLRepository, enableIntegrity, networkLibrary, list, api)
+        }
+
         offset = items.lastOrNull()?.cursor
-        val nextPage = data.pageInfo?.hasNextPage != false
+        val nextPage = data.pageInfo?.hasNextPage == true
+
         return LoadResult.Page(
-            data = listWithCollaborations,
+            data = list,
             prevKey = null,
             nextKey = if (!offset.isNullOrBlank() && nextPage) {
                 (params.key ?: 1) + 1
@@ -190,10 +186,14 @@ class StreamsDataSource(
                 tags = it.tags
             )
         }
-        val listWithCollaborations = loadCollaborations(list)
+
+        if (includeCollaborations) {
+            StreamTogetherHelper.loadCollaborationsFromApi(gqlHeaders, graphQLRepository, enableIntegrity, networkLibrary, list, api)
+        }
+
         offset = response.pagination?.cursor
         return LoadResult.Page(
-            data = listWithCollaborations,
+            data = list,
             prevKey = null,
             nextKey = if (!offset.isNullOrBlank()) {
                 (params.key ?: 1) + 1

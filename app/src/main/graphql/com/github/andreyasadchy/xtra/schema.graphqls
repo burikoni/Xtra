@@ -16,6 +16,32 @@ type Query {
     users(ids: [ID!], logins: [String!]): [User]
     video(id: ID): Video
     videoPlaybackAccessToken(id: ID!, params: PlaybackAccessTokenParams!): PlaybackAccessToken
+    guestStarCollaborationStatuses(options: GuestStarChannelCollaborationOptions) : GuestStarCollaborationStatuses
+}
+
+type GuestStarCollaborationStatuses {
+    channelCollabs: [ChannelCollabs]
+}
+
+type ChannelCollabs {
+    id: ID
+    session: GuestStarSessionForViewers
+}
+
+type GuestStarSessionForViewers {
+    id: ID
+    host: User
+    guests: [GuestStarSlotForViewers]
+}
+
+type GuestStarSlotForViewers {
+    id: ID
+    slotID: String
+    user: User
+}
+
+input GuestStarChannelCollaborationOptions {
+    channelIDs: [ID!]!
 }
 
 type Badge {
@@ -271,6 +297,7 @@ type Stream {
     type: String
     viewersCount: Int
     costreamDetails: CostreamDetails
+    collaborationViewersCount: Int
 }
 
 type CostreamDetails {

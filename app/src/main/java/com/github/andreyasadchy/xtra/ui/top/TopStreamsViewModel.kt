@@ -85,6 +85,7 @@ class TopStreamsViewModel @Inject constructor(
                     if (enabled) key else null
                 },
                 networkLibrary = applicationContext.prefs().getString(C.NETWORK_LIBRARY, "OkHttp"),
+                includeCollaborations = applicationContext.prefs().getBoolean(C.INCLUDE_COLLABORATIONS, true)
             )
         }.flow
     }.cachedIn(viewModelScope)

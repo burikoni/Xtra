@@ -1,0 +1,30 @@
+query GuestStarBatchCollaboration($channelIDs: [ID!]!) {
+    guestStarCollaborationStatuses(options: {channelIDs: $channelIDs}) {
+        channelCollabs {
+            id
+            session {
+                id
+                host {
+                    id
+                    login
+                    displayName
+                }
+                guests {
+                    id
+                    slotID
+                    user {
+                        id
+                        displayName
+                        login
+                        profileImageURL(width: 300)
+                        stream {
+                            id
+                            viewersCount
+                            collaborationViewersCount
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

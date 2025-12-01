@@ -19,6 +19,7 @@ import com.github.andreyasadchy.xtra.GameBoxArtQuery
 import com.github.andreyasadchy.xtra.GameClipsQuery
 import com.github.andreyasadchy.xtra.GameStreamsQuery
 import com.github.andreyasadchy.xtra.GameVideosQuery
+import com.github.andreyasadchy.xtra.GuestStarBatchCollaborationQuery
 import com.github.andreyasadchy.xtra.SearchChannelsQuery
 import com.github.andreyasadchy.xtra.SearchGamesQuery
 import com.github.andreyasadchy.xtra.SearchStreamsQuery
@@ -1643,6 +1644,11 @@ class GraphQLRepository @Inject constructor(
             }
         }.toString()
         json.decodeFromString<ErrorResponse>(sendPersistedQuery(networkLibrary, headers, body))
+    }
+
+    suspend fun loadQueryGuestStarBatchCollaboration(networkLibrary: String?, headers: Map<String, String>, ids: List<String>): ApolloResponse<GuestStarBatchCollaborationQuery.Data> = withContext(Dispatchers.IO) {
+        val query = GuestStarBatchCollaborationQuery  (ids)
+        sendQuery(networkLibrary, headers, query)
     }
 
     suspend fun guestStarBatchCollaboration(networkLibrary: String?, headers: Map<String, String>, channelIds: List<String>?): GuestStartBatchCollaborationResponse = withContext(Dispatchers.IO) {
