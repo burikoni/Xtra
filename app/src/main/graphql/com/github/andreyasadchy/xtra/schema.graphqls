@@ -302,7 +302,9 @@ type Stream {
 
 type CostreamDetails {
     costreamersCount: Int
-    role: String
+    organizer: User,
+    role: String,
+    topCostreamers: [User!],
     totalViewersCount: Int
 
 }

@@ -1830,6 +1830,15 @@ class PlayerFragment : BaseNetworkFragment(), PlayerGamesDialog.PlayerSeekListen
         }
     }
 
+    fun openViewerCount() {
+        val channelId = requireArguments().getString(KEY_CHANNEL_ID)
+        val channelLogin = requireArguments().getString(KEY_CHANNEL_LOGIN)
+        val collaborationGuestsCount = requireArguments().getInt(KEY_COLLABORATION_GUESTS_COUNT)
+        if (!channelId.isNullOrBlank() && !channelLogin.isNullOrBlank()) {
+            PlayerViewerCountDialog.newInstance(channelId, channelLogin, collaborationGuestsCount).show(childFragmentManager, "closeOnPip")
+        }
+    }
+
     fun openViewerList() {
         requireArguments().getString(KEY_CHANNEL_LOGIN)?.let { login ->
             PlayerViewerListDialog.newInstance(login).show(childFragmentManager, "closeOnPip")

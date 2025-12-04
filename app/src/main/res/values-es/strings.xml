@@ -721,4 +721,5 @@
     <string name="move_player_freely">Move minimized player freely</string>
     <string name="costreaming_role_costreamer">Co-Streaming: %1$s</string>
     <string name="costreaming_role_organizer">Main Broadcast: %1$s</string>
+    <string name="viewer_count">Viewer count</string>
 </resources>

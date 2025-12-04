@@ -1,12 +1,9 @@
 package com.github.andreyasadchy.xtra.repository.helper
 
-import androidx.paging.PagingSource.LoadParams
-import androidx.paging.PagingSource.LoadResult
 import com.github.andreyasadchy.xtra.model.ui.Stream
 import com.github.andreyasadchy.xtra.model.ui.User
 import com.github.andreyasadchy.xtra.repository.GraphQLRepository
 import com.github.andreyasadchy.xtra.util.C
-import kotlin.text.isNullOrBlank
 
 object StreamTogetherHelper {
 
@@ -163,7 +160,13 @@ object StreamTogetherHelper {
                                     channelId = guest?.user?.id,
                                     channelLogin = guest?.user?.login,
                                     channelName = guest?.user?.displayName,
-                                    profileImageUrl = guest?.user?.profileImageURL
+                                    profileImageUrl = guest?.user?.profileImageURL,
+                                    stream = guest?.user?.stream?.let { stream ->
+                                        Stream(
+                                            id = stream.id,
+                                            viewerCount = stream.viewersCount
+                                        )
+                                    }
                                 )
                             } else null
                         }
@@ -201,7 +204,13 @@ object StreamTogetherHelper {
                                         channelId = guest.user.id,
                                         channelLogin = guest.user.login,
                                         channelName = guest.user.displayName,
-                                        profileImageUrl = guest.user.profileImageURL
+                                        profileImageUrl = guest.user.profileImageURL,
+                                        stream = guest.user.stream?.let { stream ->
+                                            Stream(
+                                                id = stream.id,
+                                                viewerCount = stream.viewersCount
+                                            )
+                                        }
                                     )
                                 } else null
                             }

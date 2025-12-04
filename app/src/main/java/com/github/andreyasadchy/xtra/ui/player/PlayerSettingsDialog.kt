@@ -69,6 +69,13 @@ class PlayerSettingsDialog : BottomSheetDialogFragment() {
                 (parentFragment as? PlayerFragment)?.setQualityText()
             }
             if (videoType == PlayerFragment.STREAM) {
+                if (requireContext().prefs().getBoolean(C.PLAYER_MENU_VIEWER_COUNT, true)) {
+                    menuViewerCount.visible()
+                    menuViewerCount.setOnClickListener {
+                        (parentFragment as? PlayerFragment)?.openViewerCount()
+                        dismiss()
+                    }
+                }
                 if (requireContext().prefs().getBoolean(C.PLAYER_MENU_VIEWER_LIST, true)) {
                     menuViewerList.visible()
                     menuViewerList.setOnClickListener {

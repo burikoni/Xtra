@@ -4,7 +4,6 @@ import android.net.http.HttpEngine
 import android.net.http.UrlResponseInfo
 import android.os.Build
 import android.os.ext.SdkExtensions
-import android.util.Log
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.CustomScalarAdapters
 import com.apollographql.apollo.api.Optional
@@ -15,6 +14,7 @@ import com.apollographql.apollo.api.json.writeObject
 import com.apollographql.apollo.api.parseResponse
 import com.github.andreyasadchy.xtra.BadgesQuery
 import com.github.andreyasadchy.xtra.ClipUrlsQuery
+import com.github.andreyasadchy.xtra.CostreamDetailsQuery
 import com.github.andreyasadchy.xtra.GameBoxArtQuery
 import com.github.andreyasadchy.xtra.GameClipsQuery
 import com.github.andreyasadchy.xtra.GameStreamsQuery
@@ -95,7 +95,6 @@ import com.github.andreyasadchy.xtra.util.getByteArrayCronetCallback
 import dagger.Lazy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.add
@@ -468,6 +467,14 @@ class GraphQLRepository @Inject constructor(
             types = Optional.Present(types),
             first = Optional.Present(first),
             after = Optional.Present(after),
+        )
+        sendQuery(networkLibrary, headers, query)
+    }
+
+    suspend fun loadQueryCostreamDetails(networkLibrary: String?, headers: Map<String, String>, id: String?, login: String?): ApolloResponse<CostreamDetailsQuery.Data> = withContext(Dispatchers.IO) {
+        val query = CostreamDetailsQuery(
+            id = if (!id.isNullOrBlank()) Optional.Present(id) else Optional.Absent,
+            login = if (!login.isNullOrBlank()) Optional.Present(login) else Optional.Absent,
         )
         sendQuery(networkLibrary, headers, query)
     }

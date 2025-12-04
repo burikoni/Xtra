@@ -1,0 +1,33 @@
+query CostreamDetails($id: ID, $login: String) {
+    user(id: $id, login: $login) {
+        id
+        login
+        stream {
+            id
+            costreamDetails {
+                costreamersCount
+                organizer {
+                    id
+                    profileImageURL(width: 300)
+                    login
+                    displayName
+                    stream {
+                        id
+                        viewersCount
+                    }
+                }
+                role
+                topCostreamers {
+                    id
+                    profileImageURL(width: 300)
+                    login
+                    displayName
+                    stream {
+                        id
+                        viewersCount
+                    }
+                }
+            }
+        }
+    }
+}
